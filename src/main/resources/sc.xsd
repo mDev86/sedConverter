@@ -1,0 +1,137 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="StructuredElectronicObject">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Header">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute type="xs:string" name="Type"/>
+                                <xs:attribute type="xs:string" name="Author"/>
+                                <xs:attribute type="xs:string" name="Note"/>
+                                <xs:attribute type="xs:string" name="SourceEDocumentID"/>
+                                <xs:attribute type="xs:string" name="SourceEDocumentVersionNumber"/>
+                                <xs:attribute type="xs:string" name="CreatedInSenderSystem"/>
+                                <xs:attribute type="xs:string" name="Name"/>
+                                <xs:attribute type="xs:string" name="Extension"/>
+                                <xs:attribute type="xs:string" name="Organization"/>
+                                <xs:attribute type="xs:string" name="Number"/>
+                                <xs:attribute type="xs:dateTime" name="Date"/>
+                                <xs:attribute type="xs:dateTime" name="Modified"/>
+                                <xs:attribute type="xs:string" name="GlobalID"/>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="ExtAttributes">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="ID">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute type="xs:string" name="Name"/>
+                                            <xs:attribute type="xs:string" name="Type"/>
+                                            <xs:attribute type="xs:string" name="IsNull"/>
+                                            <xs:attribute type="xs:string" name="Value"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="Organization">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute type="xs:string" name="Name"/>
+                                            <xs:attribute type="xs:string" name="Type"/>
+                                            <xs:attribute type="xs:string" name="IsNull"/>
+                                            <xs:attribute type="xs:string" name="Value"/>
+                                            <xs:attribute type="xs:string" name="Reference"/>
+                                            <xs:attribute type="xs:string" name="MetadataID"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="VersionNumber">
+                                <xs:complexType>
+                                    <xs:simpleContent>
+                                        <xs:extension base="xs:string">
+                                            <xs:attribute type="xs:string" name="Name"/>
+                                            <xs:attribute type="xs:string" name="Type"/>
+                                            <xs:attribute type="xs:string" name="IsNull"/>
+                                            <xs:attribute type="xs:byte" name="Value"/>
+                                        </xs:extension>
+                                    </xs:simpleContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element type="xs:string" name="Contents"/>
+                <xs:element name="DigitalSignatures">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="DigitalSignature" maxOccurs="unbounded" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="Data"/>
+                                        <xs:element name="Attributes">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="Comment">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute type="xs:string" name="Name" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Type" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="IsNull" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Value" use="optional"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                    <xs:element name="SignedByUserName">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute type="xs:string" name="Name" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Type" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="IsNull" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Value" use="optional"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                    <xs:element name="InTheNameOfUserName">
+                                                        <xs:complexType>
+                                                            <xs:simpleContent>
+                                                                <xs:extension base="xs:string">
+                                                                    <xs:attribute type="xs:string" name="Name" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Type" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="IsNull" use="optional"/>
+                                                                    <xs:attribute type="xs:string" name="Value" use="optional"/>
+                                                                </xs:extension>
+                                                            </xs:simpleContent>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute type="xs:dateTime" name="Signed" use="optional"/>
+                                    <xs:attribute type="xs:string" name="CertificateIssuedTo" use="optional"/>
+                                    <xs:attribute type="xs:string" name="CryptoProvider" use="optional"/>
+                                    <xs:attribute type="xs:string" name="SignatureType" use="optional"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute type="xs:float" name="Version"/>
+            <xs:attribute type="xs:string" name="MetadataID"/>
+            <xs:attribute type="xs:string" name="MetadataVersion"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="StructuredElectronicObject">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="Header"/>
+                <xs:element ref="ExtAttributes"/>
+                <xs:element ref="Contents"/>
+                <xs:element ref="DigitalSignatures"/>
+            </xs:sequence>
+            <xs:attribute name="MetadataID" use="required"/>
+            <xs:attribute name="MetadataVersion" use="required"/>
+            <xs:attribute name="Version" use="required" type="xs:decimal"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Header">
+        <xs:complexType>
+            <xs:attribute name="Author" use="required"/>
+            <xs:attribute name="CreatedInSenderSystem" use="required"/>
+            <xs:attribute name="Date" use="required" type="xs:dateTime"/>
+            <xs:attribute name="Extension" use="required" type="xs:NCName"/>
+            <xs:attribute name="GlobalID" use="required"/>
+            <xs:attribute name="Modified" use="required" type="xs:dateTime"/>
+            <xs:attribute name="Name" use="required"/>
+            <xs:attribute name="Note" use="required"/>
+            <xs:attribute name="Number" use="required" type="xs:NMTOKEN"/>
+            <xs:attribute name="Organization" use="required"/>
+            <xs:attribute name="SourceEDocumentID" use="required"/>
+            <xs:attribute name="SourceEDocumentVersionNumber" use="required"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ExtAttributes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ID"/>
+                <xs:element ref="Organization"/>
+                <xs:element ref="VersionNumber"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="ID">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Organization">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="MetadataID" use="required"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Reference" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="VersionNumber">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Contents"  type="xs:NCName"/>
+    <xs:element name="DigitalSignatures">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="DigitalSignature"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="DigitalSignature">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="Data"/>
+                <xs:element ref="Attributes"/>
+            </xs:sequence>
+            <xs:attribute name="CertificateIssuedTo" use="required"/>
+            <xs:attribute name="CryptoProvider" use="required"/>
+            <xs:attribute name="SignatureType" use="required" type="xs:NCName"/>
+            <xs:attribute name="Signed" use="required" type="xs:dateTime"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Data" type="xs:string"/>
+    <xs:element name="Attributes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="Comment"/>
+                <xs:element ref="SignedByUserName"/>
+                <xs:element ref="InTheNameOfUserName"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="Comment">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="SignedByUserName">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="InTheNameOfUserName">
+        <xs:complexType>
+            <xs:attribute name="IsNull" use="required" type="xs:boolean"/>
+            <xs:attribute name="Name" use="required" type="xs:NCName"/>
+            <xs:attribute name="Type" use="required" type="xs:NCName"/>
+            <xs:attribute name="Value" use="required"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

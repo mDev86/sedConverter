@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<StructuredElectronicObject Version="2.0" MetadataID="" MetadataVersion="">
+    <Header Type="Document" Author="" Note="" SourceEDocumentID="" SourceEDocumentVersionNumber="" CreatedInSenderSystem="" Name="Техническое задание _ХМАО_Отчетность_на_согласование (актуальная редакция)[1].doc" Extension="doc" Organization="Департамент информационных технологий и цифрового развития Ханты-Мансийского автономного округа - Югры" Number="08-Вх-6121" Date="2018-11-02T00:00:00+05:00" Modified="2018-11-02T00:00:00+05:00" GlobalID="4bcaaa85a68b4d32acf10affc07135ea" />
+    <ExtAttributes>
+        <ID Name="ID" Type="Integer" IsNull="false" Value="4bcaaa85a68b4d32acf10affc07135ea" />
+        <Organization Name="Organization" Type="Reference" IsNull="true" Value="" Reference="Организации" MetadataID="" />
+        <VersionNumber Name="VersionNumber" Type="Integer" IsNull="false" Value="1" />
+    </ExtAttributes>
+    <Contents>
+        <![CDATA[ asd  ]]>
+    </Contents>
+    <DigitalSignatures>
+        <DigitalSignature Signed="2018-10-31T09:12:54+05:00" CertificateIssuedTo="INN=8601016384/KPP=860101001/OGRN=1028600513590, SurgutskovaSJ@uriit.ru, 008601016384, 04539122144, 1028600513590, Специалист по организационному и документационному обеспечению управления организацией, Административно-правовой отдел, АУ Югорский НИИ информационных технологий, ул. Мира д. 151, Ханты-Мансийск, 86 Ханты-Мансийский автономный округ - Югра, RU, Светлана Юрьевна, Сургутскова, АУ горский НИИ информационных технологий" CryptoProvider="CryptoPro Encryption" SignatureType="Approving">
+            <Data>
+                <![CDATA[ asd  ]]>
+            </Data>
+            <Attributes>
+                <Comment Name="Comment" Type="String" IsNull="false" Value="Approving" />
+                <SignedByUserName Name="SignedByUserName" Type="String" IsNull="false" Value="SurgutskovaSJ@uriit.ru" />
+                <InTheNameOfUserName Name="InTheNameOfUserName" Type="String" IsNull="false" Value="SurgutskovaSJ@uriit.ru" />
+            </Attributes>
+        </DigitalSignature>
+        <DigitalSignature Signed="2018-10-31T12:15:15+05:00" CertificateIssuedTo="VidolobIV@uriit.ru, 008601016384, 12826306349, 1028600513590, Начальник отдела, Центр сетевых технологий и телекоммуникаций, АУ Югорский НИИ информационных технологий, ул. Мира, д. 151, Ханты-Мансийск, 86 Ханты-Мансийский автономный округ - Югра, RU, Игорь Владимирович, Видолоб, АУ Югорский НИИ информационных технологий" CryptoProvider="CryptoPro Encryption" SignatureType="Approving">
+            <Data>
+                <![CDATA[ asd  ]]>
+            </Data>
+            <Attributes>
+                <Comment Name="Comment" Type="String" IsNull="false" Value="Approving" />
+                <SignedByUserName Name="SignedByUserName" Type="String" IsNull="false" Value="VidolobIV@uriit.ru" />
+                <InTheNameOfUserName Name="InTheNameOfUserName" Type="String" IsNull="false" Value="VidolobIV@uriit.ru" />
+            </Attributes>
+        </DigitalSignature>
+    </DigitalSignatures>
+</StructuredElectronicObject>

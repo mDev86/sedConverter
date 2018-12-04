@@ -21,9 +21,15 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -258,17 +264,23 @@ public class ESD
         this.version = value;
     }
 
-    public void extractFile(String path) throws IOException {
+    public String getFileName() {
         String fileName = this.getHeader().getName();
+        fileName = fileName.substring(0, Math.min(fileName.length(), 100));
+        fileName += FilenameUtils.getExtension(fileName).equalsIgnoreCase(this.getHeader().getExtension())? "":"." + this.getHeader().getExtension().toLowerCase();
 
-        fileName += FilenameUtils.getExtension(fileName).isEmpty() ? "."+this.getHeader().extension : "";
-        FileConvert.Base64ToFile(this.getContents(), path + "\\" + fileName);
+        return fileName;
+    }
 
-        int count = 1;
+    public void extractFile(String path) throws IOException {
+        String filePath = Paths.get(path, getFileName()).toString();
+        FileConvert.Base64ToFile(this.getContents(), filePath);
+
+        int signNumber = 0;
         for(DigitalSignature sign : this.getDigitalSignatures().getDigitalSignature()){
-            String name = String.format("%s%s.sig", fileName, (count > 1? "."+String.valueOf(count):""));
-            FileConvert.Base64ToFile(sign.getData(), path + "\\" + name);
-            count++;
+            String sigPath = String.format("%s.%s.sig", filePath, signNumber);
+            FileConvert.Base64ToFile(sign.getData(), sigPath);
+            signNumber++;
         }
     }
 
@@ -296,4 +308,28 @@ public class ESD
         marshaller.marshal(this, file);
     }
 
+    public static List<ESD> readFiles(String path) throws IOException, JAXBException {
+        List<ESD> result = new ArrayList<>();
+
+        List<File> files = Files.walk(Paths.get(path)).
+                filter(file -> file.toString().toLowerCase().endsWith(".esd")).map(Path::toFile).collect(Collectors.toList());
+
+        JAXBContext context = JAXBContext.newInstance(ESD.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        for (File f: files) {
+            result.add((ESD) unmarshaller.unmarshal(f));
+        }
+
+        return result;
+    }
+
+    public static ESD getMain(List<ESD> esds) {
+        for (ESD esd: esds) {
+            if (!esd.header.number.isEmpty())
+                return esd;
+        }
+
+        return null;
+    }
 }

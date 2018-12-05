@@ -1,0 +1,11 @@
+stages:
+  - build
+  - test
+  - deploy
+
+building:
+  stage: build
+  tags:
+    - main
+  script:
+    - mvn verify

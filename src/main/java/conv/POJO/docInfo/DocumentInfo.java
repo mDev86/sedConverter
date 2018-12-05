@@ -1,14 +1,15 @@
 
 package conv.POJO.docInfo;
 
+import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.SigInfo;
 import conv.POJO.SignType;
 import conv.POJO.esd.*;
 import conv.Utils.Config;
 import conv.Utils.FileConvert;
 import conv.Utils.SigParser;
-import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
 import org.bouncycastle.cms.CMSException;
 
 import javax.xml.bind.JAXBContext;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.*;
 
 
@@ -207,7 +207,7 @@ public class DocumentInfo
         marshaller.marshal(this, file);
     }
 
-    public List<ESD> toESD(String sourceCatlog) throws IOException, CMSException, ParseException, DatatypeConfigurationException {
+    public List<ESD> toESD(String sourceCatlog) throws CustomWorkExceptions {
         List<ESD> esds = new ArrayList<>();
 
         String Organization = "";
@@ -223,8 +223,11 @@ public class DocumentInfo
                     Organization organization = contact.getOrganization();
                     if (organization != null) {
                         String orgUID = organization.getUID();
-                        Organization = Config.getInstance().getOGVuid().get(orgUID);
-                        System.out.println(Organization);
+                        try {
+                            Organization = Config.getInstance().getOGVuid().get(orgUID);
+                        } catch (IOException e) {
+                            LogManager.getRootLogger().warn("Ошибка записи или считывания файла с uid огв", e);
+                        }
                         if (Organization == null) {
                             Organization = organization.shortName;
                         }
@@ -236,7 +239,7 @@ public class DocumentInfo
             if (resourceList != null && resourceList.getResource() != null) {
                 listResource = resourceList.getResource();
             } else {
-                //TODO:Прекращаем работу с ошибкой, отсутствуют файлы
+                throw new CustomWorkExceptions("Ошибка получения сопутствующих файлов(<ResourceList>) в docinfo.xml", null);
             }
 
         }
@@ -265,7 +268,14 @@ public class DocumentInfo
                             RegistrationInfo registrationInfo = doc.getRegistrationInfo();
                             if (registrationInfo != null) {
                                 //Приведение к нормализованному виду
-                                XMLGregorianCalendar date = DatatypeFactory.newInstance().newXMLGregorianCalendar(registrationInfo.getDate().toGregorianCalendar());
+                                XMLGregorianCalendar date = null;
+                                try {
+                                    date = DatatypeFactory.newInstance().newXMLGregorianCalendar(registrationInfo.getDate().toGregorianCalendar());
+                                } catch (DatatypeConfigurationException e) {
+                                    LogManager.getRootLogger().warn("Проблема при преобразовании даты в формат XMLGregorianCalendar", e);
+                                    //TODO: Сделать ручной вариант преобразования
+                                    e.printStackTrace();
+                                }
                                 header.setNumber(registrationInfo.getNumber());
                                 header.setDate(date);
                                 header.setModified(date);
@@ -369,11 +379,12 @@ public class DocumentInfo
                             esds.add(esd);
                         }
                     } else {
-                        //INFO: НЕТ СПИСКА ФАЙЛОВ
+                        LogManager.getRootLogger().warn("Проблема конвертации docInfo -> esd: Нет описания файлов, отсутствуют теги <File>");
                     }
                 }
             } else {
-                //INFO: НЕТ ДОКУМЕНТОВ
+                //TODO:
+                throw new CustomWorkExceptions("Отсутствует список РК (<DocumentList>).", null);
             }
         }
         return esds;

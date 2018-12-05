@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="60">
+    <Properties>
+        <Property name="log-path">logs</Property>
+        <Property name="archive">${log-path}/archive</Property>
+        <Property name="returnId">${sys:returnId}</Property>
+        <Property name="basePath">${sys:basePath}</Property>
+    </Properties>
+
+    <Appenders>
+        <!--<Console name="Console-Appender" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
+                </pattern>>
+            </PatternLayout>
+        </Console>-->
+
+        <File name="File-Appender" fileName="${basePath}/error.log"  >
+            <PatternLayout>
+                <pattern>
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - $returnId - %msg%n
+                </pattern>
+
+            </PatternLayout>
+        </File>
+
+
+        <RollingFile name="RollingFile">
+            <FileName>${log-path}/global.log</FileName>
+            <FilePattern>${archive}/%d{yyyy-MM-dd-hh-mm-ss}.log.zip</FilePattern>
+            <PatternLayout>
+                <Pattern>%-5level %d{yyyy-MMM-dd HH:mm:ss a} [%t] %c{1} %logger{36} - $returnId  - %msg%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="2" modulate="true" />
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="5" />
+        </RollingFile>
+
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="error" level="debug">
+            <AppenderRef ref="File-Appender" level="all"/>
+        </Logger>
+
+        <Root level="debug">
+            <AppenderRef ref="RollingFile" level="all"/>
+        </Root>
+    </Loggers>
+</Configuration>

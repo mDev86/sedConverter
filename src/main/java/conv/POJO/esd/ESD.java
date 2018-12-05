@@ -9,13 +9,17 @@
 package conv.POJO.esd;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
-import com.sun.xml.txw2.annotation.XmlCDATA;
-import conv.Utils.JAXBAdapter.AdapterCDATA;
+import conv.Exceptions.CustomWorkExceptions;
 import conv.Utils.FileConvert;
-import conv.Utils.JAXBAdapter.BigDecimalToStringAdapter;
-import org.apache.commons.io.FileUtils;
+import conv.Utils.JAXBAdapter.AdapterCDATA;
 import org.apache.commons.io.FilenameUtils;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -26,19 +30,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
 /**
@@ -272,7 +263,7 @@ public class ESD
         return fileName;
     }
 
-    public void extractFile(String path) throws IOException {
+    public void extractFile(String path) throws CustomWorkExceptions {
         String filePath = Paths.get(path, getFileName()).toString();
         FileConvert.Base64ToFile(this.getContents(), filePath);
 

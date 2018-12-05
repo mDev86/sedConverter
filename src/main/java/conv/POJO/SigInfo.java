@@ -1,5 +1,6 @@
 package conv.POJO;
 
+import org.apache.logging.log4j.LogManager;
 import org.bouncycastle.util.encoders.Base64;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -39,11 +40,16 @@ public class SigInfo{
         return Signed;
     }
 
-    public XMLGregorianCalendar getSignedToXMLGregorianCalendar() throws DatatypeConfigurationException {
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(Signed);
-        XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
-        return date2;
+    public XMLGregorianCalendar getSignedToXMLGregorianCalendar(){
+        try {
+            GregorianCalendar c = new GregorianCalendar();
+            c.setTime(Signed);
+            XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+            return date2;
+        } catch (DatatypeConfigurationException e) {
+            LogManager.getRootLogger().warn("Экземпляр информации о подписи: Ошибка преобразования даты: Date -> XMLGregorianCalendar", e);
+            return null;
+        }
     }
 
     public void setSigned(Date signed) {

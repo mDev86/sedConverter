@@ -7,6 +7,7 @@
   <groupId>conv</groupId>
   <artifactId>convert</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>convert</name>
   <!-- FIXME change it to the project's website -->
@@ -38,13 +39,18 @@
       <version>2.3.0.1</version>
     </dependency>
 
-<!--
-      <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
-          <version>1.60</version>
-      </dependency>
--->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.11.1</version>
+    </dependency>
+
 
     <dependency>
       <groupId>commons-io</groupId>

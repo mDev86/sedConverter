@@ -1,5 +1,6 @@
 package conv.Utils;
 
+import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.docInfo.DocumentInfo;
 import conv.POJO.esd.ESD;
 import org.apache.commons.io.FilenameUtils;
@@ -58,15 +59,22 @@ public class XMLReader {
         return object;
     }
 
-    public static DocumentInfo loadDocInfoFromXml(File _file) throws FileNotFoundException, JAXBException {
-        FileInputStream file = new FileInputStream(_file);
+    public static DocumentInfo loadDocInfoFromXml(File _file) throws CustomWorkExceptions {
+        FileInputStream file = null;
+        try {
+            file = new FileInputStream(_file);
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(DocumentInfo.class);
+            JAXBContext jaxbContext = JAXBContext.newInstance(DocumentInfo.class);
 
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        Source source = new StreamSource(file);
-        JAXBElement<DocumentInfo> root = jaxbUnmarshaller.unmarshal(source, DocumentInfo.class);
-        return root.getValue();
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Source source = new StreamSource(file);
+            JAXBElement<DocumentInfo> root = jaxbUnmarshaller.unmarshal(source, DocumentInfo.class);
+            return root.getValue();
+        } catch (FileNotFoundException e) {
+            throw new CustomWorkExceptions(String.format("Файл \"%s\" не найден", _file), e);
+        } catch (JAXBException e) {
+            throw new CustomWorkExceptions(String.format("Ошибка считывания(парсинга) файла \"%s\"", _file), e);
+        }
     }
 
 }

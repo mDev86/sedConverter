@@ -307,29 +307,4 @@ public class ESD
 
         marshaller.marshal(this, file);
     }
-
-    public static List<ESD> readFiles(String path) throws IOException, JAXBException {
-        List<ESD> result = new ArrayList<>();
-
-        List<File> files = Files.walk(Paths.get(path)).
-                filter(file -> file.toString().toLowerCase().endsWith(".esd")).map(Path::toFile).collect(Collectors.toList());
-
-        JAXBContext context = JAXBContext.newInstance(ESD.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-
-        for (File f: files) {
-            result.add((ESD) unmarshaller.unmarshal(f));
-        }
-
-        return result;
-    }
-
-    public static ESD getMain(List<ESD> esds) {
-        for (ESD esd: esds) {
-            if (!esd.header.number.isEmpty())
-                return esd;
-        }
-
-        return null;
-    }
 }

@@ -1,16 +1,27 @@
 package conv.Utils;
 
+import conv.POJO.DeloConfig;
 import org.apache.commons.io.FileUtils;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Config {
     final Map<Integer, String> OGVuid;
+    private DeloConfig deloConfig;
     private static Config config;
 
     public static Config getInstance() throws IOException {
+        File folderConf = new File("conf");
+        if (!folderConf.exists()) {
+            folderConf.mkdir();
+        }
+
         if(config == null){
             config = new Config();
         }
@@ -19,6 +30,11 @@ public class Config {
 
     private Config() throws IOException {
         OGVuid = loadOGV();
+        try {
+            deloConfig = loadDeloConf();
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -28,7 +44,7 @@ public class Config {
      */
     private Map<Integer, String> loadOGV() throws IOException {
 
-        File ogv = new File("ogv");
+        File ogv = new File("conf\\ogv");
         if(!ogv.exists()){
             FileOutputStream fos = new FileOutputStream(ogv);
             fos.write(FileUtils.readFileToByteArray(new File(getClass().getClassLoader().getResource("UIDogv").getFile())));
@@ -53,5 +69,29 @@ public class Config {
 
     public Map<Integer, String> getOGVuid() {
         return OGVuid;
+    }
+
+    private DeloConfig loadDeloConf() throws JAXBException {
+        DeloConfig result = null;
+
+        File file = new File("conf\\DeloConfig.xml");
+        JAXBContext jaxbContext = JAXBContext.newInstance(DeloConfig.class);
+        if (file.exists()) {
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            result = (DeloConfig) unmarshaller.unmarshal(file);
+        } else {
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            result = DeloConfig.getDefault();
+
+            marshaller.marshal(result, file);
+        }
+
+        return result;
+    }
+
+    public DeloConfig getDeloCofig() {
+        return deloConfig;
     }
 }

@@ -1,6 +1,7 @@
 package conv.Utils;
 
 import conv.POJO.docInfo.DocumentInfo;
+import conv.POJO.docInfo.Sender;
 import conv.POJO.esd.ESD;
 import org.apache.commons.io.FilenameUtils;
 
@@ -24,38 +25,30 @@ import java.util.stream.Stream;
 
 public class XMLReader {
 
-    public static List<ESD> loadAllEsd(String pathWorkDirectory){
-        List<ESD> object = new ArrayList<ESD>();
+    public static List<ESD> loadESDFiles(String path) throws Exception {
+        List<ESD> result = new ArrayList<>();
+
+        List<File> files = null;
         try {
-            Stream<Path> streams = Files.find(Paths.get(pathWorkDirectory), 1, (path, attr) -> FilenameUtils.getExtension(path.getFileName().toString()).equalsIgnoreCase("esd"));
-
-            for(Path path : streams.collect(Collectors.toList())){
-                File file = path.toFile();
-
-                System.out.println(file.getName());
-
-                if(file.exists()
-                        && file.isFile()
-                        && FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("esd"))
-                {
-                    try {
-                        JAXBContext jaxbContext = JAXBContext.newInstance(ESD.class);
-                        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                        object.add((ESD) jaxbUnmarshaller.unmarshal(file));
-                    } catch (JAXBException e) {
-                        e.printStackTrace();
-                        //TODO: Залогировать ошибку
-                        return null;
-                    }
-                }
-            }
+            files = Files.walk(Paths.get(path)).
+                    filter(file -> file.toString().toLowerCase().endsWith(".esd")).map(Path::toFile).collect(Collectors.toList());
         } catch (IOException e) {
-            e.printStackTrace();
-            //TODO: Залогировать ошибку
-            return null;
+            throw new Exception(String.format("Ошибка чтения директории \"%s\"", path), e);
         }
 
-        return object;
+        JAXBContext context = JAXBContext.newInstance(ESD.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        for (File f: files) {
+            try {
+                result.add((ESD) unmarshaller.unmarshal(f));
+            } catch (JAXBException e) {
+                throw new Exception(String.format("Ошибка десериализации файла \"%s\"", f.getName()), e);
+            }
+
+        }
+
+        return result;
     }
 
     public static DocumentInfo loadDocInfoFromXml(File _file) throws FileNotFoundException, JAXBException {
@@ -68,5 +61,4 @@ public class XMLReader {
         JAXBElement<DocumentInfo> root = jaxbUnmarshaller.unmarshal(source, DocumentInfo.class);
         return root.getValue();
     }
-
 }

@@ -5,10 +5,7 @@ import conv.POJO.SignType;
 import conv.POJO.docInfo.DocumentInfo;
 import conv.POJO.docInfo.EDS;
 import conv.POJO.esd.ESD;
-import conv.Utils.Config;
-import conv.Utils.FileConvert;
-import conv.Utils.SigParser;
-import conv.Utils.XMLReader;
+import conv.Utils.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.cms.CMSException;
@@ -18,10 +15,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.*;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Hello world!
@@ -29,13 +23,37 @@ import java.util.Map;
  */
 public class App
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws IOException {
+        String pathwork = "C:\\tmp\\1962\\in\\";
+        String pathoutwork = "C:\\tmp\\1962\\out";
+        String returnId = UUID.randomUUID().toString().replace("-", "");
+        String messageId = UUID.randomUUID().toString().replace("-", "");
 
+        Config.getInstance();
 
-       // System.out.println(SignType.Approving..Approving..toString());
+        System.out.println(System.getProperty("conf\\user.dir"));
+        File folder = new File("Sender.xml");
+        try {
+            folder.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println(folder.exists());
 
-        DitToDir();
+        List<ESD> esds = null;
+        try {
+            esds = XMLReader.loadESDFiles(pathwork);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            ESDConverter.convert(esds, pathoutwork, returnId, messageId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //DitToDir();
 /*
         try {
             Config instance = Config.getInstance();
@@ -45,9 +63,9 @@ public class App
             e.printStackTrace();
         }*/
 
-        System.out.println(SignType.getName(2));
+        //System.out.println(SignType.getName(2));
 
-        System.out.println(SignType.valueOf("approving").getIndex());
+        //System.out.println(SignType.valueOf("approving").getIndex());
 
        /* String pathwork = "C:\\Users\\SlobodenukSS\\Documents\\Projects\\TestConvertFile\\test.docx";
         String pathwork1 = "C:\\Users\\SlobodenukSS\\Documents\\Projects\\TestConvertFile\\test1.docx";

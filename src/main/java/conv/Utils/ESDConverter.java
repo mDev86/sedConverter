@@ -1,16 +1,21 @@
 package conv.Utils;
 
+import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.DeloConfig;
 import conv.POJO.SignType;
 import conv.POJO.docInfo.*;
 import conv.POJO.esd.DigitalSignature;
 import conv.POJO.esd.ESD;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
 import java.util.*;
 
 public class ESDConverter {
@@ -24,13 +29,23 @@ public class ESDConverter {
         return null;
     }
 
-    public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws Exception {
+    public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws CustomWorkExceptions {
+        Logger logger = LogManager.getRootLogger();
         DocumentInfo result = new DocumentInfo();
-        DeloConfig deloConfig = Config.getInstance().getDeloCofig();
-        ESD main = getMain(esds);
 
+        DeloConfig deloConfig = null;
+        try {
+            deloConfig = Config.getInstance().getDeloCofig();
+        } catch (IOException e) {
+            logger.error("Ошибка чтения файлов конфигурации", e);
+        }
+        if (deloConfig == null) {
+            throw new CustomWorkExceptions("Ошибка чтения параметров отправителя и получателя");
+        }
+
+        ESD main = getMain(esds);
         if (main == null) {
-            throw new Exception("Ошибка определения главного документа");
+            throw new CustomWorkExceptions("Ошибка определения главного документа");
         }
 
         MessageHeader header = new MessageHeader();
@@ -43,7 +58,13 @@ public class ESDConverter {
         GregorianCalendar gCalendar = new GregorianCalendar();
         gCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
         gCalendar.setTime(new Date());
-        header.setTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(gCalendar));
+        XMLGregorianCalendar xmlgCalendar = null;
+        try {
+            xmlgCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(gCalendar);
+        } catch (DatatypeConfigurationException e) {
+            logger.warn("Ошибка преобразования даты в XMLGregorianCalendar", e);
+        }
+        header.setTime(xmlgCalendar);
 
         header.setReturnID(returnId);
         header.setMessageID(messageId);
@@ -160,8 +181,7 @@ public class ESDConverter {
         try {
             result.saveToXML(outpuPath);
         } catch (JAXBException e) {
-            //TODO
-            throw new Exception("Ошибка создания DocInfo.xml", e);
+            throw new CustomWorkExceptions("Ошибка создания DocInfo.xml", e);
         }
     }
 }

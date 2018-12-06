@@ -3,6 +3,7 @@ package conv;
 import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.docInfo.DocumentInfo;
 import conv.POJO.esd.ESD;
+import conv.Utils.ESDConverter;
 import conv.Utils.XMLReader;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +11,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Hello world!
@@ -47,7 +51,7 @@ public class App
             if(Dit2Dir) {
                 DitToDir(basePath);
             }else{
-                //TODO: Тут вызов Dir -> Dit
+                DirToDit(basePath, returnId, messageId);
             }
         }catch (CustomWorkExceptions customWorkExceptions) {
             log.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
@@ -88,6 +92,19 @@ public class App
                 throw new CustomWorkExceptions("Ошибка при сохранении esd файла", e);
             }
         }
+    }
+
+    private static void DirToDit(String basePath, String returnId, String messageId) throws CustomWorkExceptions {
+        Path in = Paths.get(basePath, "in");
+        Path out = Paths.get(basePath, "out");
+
+        List<ESD> esds = XMLReader.loadESDFiles(in.toString());
+
+        if (esds == null || esds.size() ==0) {
+            throw new CustomWorkExceptions("Файлы *.esd не найдены");
+        }
+
+        ESDConverter.convert(esds, out.toString(), returnId, messageId);
     }
 
 }

@@ -2,6 +2,7 @@ package conv.Utils;
 
 import conv.POJO.DeloConfig;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -33,7 +34,7 @@ public class Config {
         try {
             deloConfig = loadDeloConf();
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LogManager.getRootLogger().error("Ошибка десерилизации файла конфигурации conf\\DeloConfig.xml", e);
         }
     }
 

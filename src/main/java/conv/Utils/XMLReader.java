@@ -5,6 +5,7 @@ import conv.POJO.docInfo.DocumentInfo;
 import conv.POJO.docInfo.Sender;
 import conv.POJO.esd.ESD;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 
 public class XMLReader {
 
-    public static List<ESD> loadESDFiles(String path) throws Exception {
+    public static List<ESD> loadESDFiles(String path) throws CustomWorkExceptions {
         List<ESD> result = new ArrayList<>();
 
         List<File> files = null;
@@ -34,17 +35,22 @@ public class XMLReader {
             files = Files.walk(Paths.get(path)).
                     filter(file -> file.toString().toLowerCase().endsWith(".esd")).map(Path::toFile).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new Exception(String.format("Ошибка чтения директории \"%s\"", path), e);
+            throw new CustomWorkExceptions(String.format("Ошибка чтения директории \"%s\"", path), e);
         }
 
-        JAXBContext context = JAXBContext.newInstance(ESD.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
+        Unmarshaller unmarshaller = null;
+        try {
+            JAXBContext context = JAXBContext.newInstance(ESD.class);
+            unmarshaller = context.createUnmarshaller();
+        } catch (JAXBException e) {
+            LogManager.getRootLogger().error("Ошибка создания десерилизатора", e);
+        }
 
         for (File f: files) {
             try {
                 result.add((ESD) unmarshaller.unmarshal(f));
             } catch (JAXBException e) {
-                throw new Exception(String.format("Ошибка десериализации файла \"%s\"", f.getName()), e);
+                throw new CustomWorkExceptions(String.format("Ошибка десериализации файла \"%s\"", f.getName()), e);
             }
 
         }

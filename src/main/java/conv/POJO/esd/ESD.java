@@ -17,19 +17,13 @@ import org.apache.commons.io.FilenameUtils;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -279,8 +273,6 @@ public class ESD
         File file = new File(path);
         file.mkdirs();
         file = new File(path,this.getHeader().name+".esd");
-        //File file = new File(path,this.getHeader().name+".esd");
-
 
         JAXBContext jaxbContext = JAXBContext.newInstance(ESD.class);
         Marshaller marshaller = jaxbContext.createMarshaller();

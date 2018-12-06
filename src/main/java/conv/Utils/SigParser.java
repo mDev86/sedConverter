@@ -96,8 +96,6 @@ public class SigParser {
         }
     }
 
-
-
     private Boolean isBinary() {
         try {
             Tika tika = new Tika();

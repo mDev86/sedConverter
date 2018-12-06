@@ -2,9 +2,7 @@ package conv.Utils;
 
 import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.docInfo.DocumentInfo;
-import conv.POJO.docInfo.Sender;
 import conv.POJO.esd.ESD;
-import org.apache.commons.io.FilenameUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -22,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class XMLReader {
 

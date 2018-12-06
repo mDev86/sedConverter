@@ -12,17 +12,10 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.Arrays;
 
-/**
- * Hello world!
- *
- */
 public class App
 {
     public static void main( String[] args )
     {
-        Logger log = LogManager.getRootLogger();
-        Logger onlyLog = LogManager.getLogger("error");
-
         final String basePath;
         final String messageId;
         final String returnId;
@@ -34,12 +27,15 @@ public class App
             Dit2Dir = Boolean.valueOf(args[2]);
             messageId = args[3];
         }catch (Exception e){
-            log.error("Неправильный вызов утилиты: неверный набор параметров.");
+            System.err.println("Неправильный вызов утилиты: неверный набор параметров - [Путь до рабочей папки] [returnId] [Dit2Dir] [messageId]");
+            System.exit(-1);
             return;
         }
 
         System.setProperty("returnId", returnId);
         System.setProperty("basePath", basePath);
+        Logger log = LogManager.getRootLogger();
+        Logger onlyLog = LogManager.getLogger("error");
 
         log.info(String.format("Запуск утилиты. Преобразование %s.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
 
@@ -49,10 +45,10 @@ public class App
             }else{
                 //TODO: Тут вызов Dir -> Dit
             }
+            log.info(String.format("Преобразование файлов %s успешно выполнено.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
         }catch (CustomWorkExceptions customWorkExceptions) {
             log.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
             onlyLog.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
-            System.out.println("error");
             System.exit(1);
         }
 
@@ -62,12 +58,14 @@ public class App
         String pathIn =  basePath + "\\in";
         String pathOut = basePath + "\\out";
 
-
         File CatIn = new File(pathIn);
         File[] files = CatIn.listFiles((dir, name) -> FilenameUtils.getExtension(name).equalsIgnoreCase("xml"));
 
+        if(files == null){
+            throw new CustomWorkExceptions(String.format(String.format("Dit2Dir: В указанном каталоге \"%s\" нет файлов с расширением .xml", CatIn.getPath())),  null);
+        }
+
         File docInfo = Arrays.stream(files).filter(it -> {
-                System.out.println(it.getName());
                 return
                         it.getName().equalsIgnoreCase("docinfo.xml")
                                 || it.getName().equalsIgnoreCase("documentinfo.xml");
@@ -76,7 +74,7 @@ public class App
             .orElse(null);
 
         if(docInfo == null){
-            throw new CustomWorkExceptions(String.format("Файл docinfo.xml не найден"),  null);
+            throw new CustomWorkExceptions(String.format("Dit2Dir: Файл docinfo.xml не найден"),  null);
         }
 
         DocumentInfo documentInfo = XMLReader.loadDocInfoFromXml(docInfo);
@@ -85,7 +83,7 @@ public class App
             try {
                 esd.saveToFile(pathOut);
             } catch (JAXBException e) {
-                throw new CustomWorkExceptions("Ошибка при сохранении esd файла", e);
+                throw new CustomWorkExceptions("Dit2Dir: Ошибка при сохранении esd файла", e);
             }
         }
     }

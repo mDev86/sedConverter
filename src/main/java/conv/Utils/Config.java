@@ -2,6 +2,7 @@ package conv.Utils;
 
 import conv.POJO.DeloConfig;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -59,7 +60,7 @@ public class Config {
                 try {
                     uid.put(Integer.parseInt(split[0]), split[1]);
                 }catch (NumberFormatException e){
-                    //TODO: Warning: файл ogv неверный
+                    LogManager.getRootLogger().warn(String.format("Считывание конфигурации: не удалось преобразовать строку \"%s\"", line));
                 }
             }
         }

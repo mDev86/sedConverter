@@ -8,20 +8,11 @@
     </Properties>
 
     <Appenders>
-        <!--<Console name="Console-Appender" target="SYSTEM_OUT">
-            <PatternLayout>
-                <pattern>
-                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n
-                </pattern>>
-            </PatternLayout>
-        </Console>-->
-
         <File name="File-Appender" fileName="${basePath}/error.log"  >
             <PatternLayout>
                 <pattern>
-                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - $returnId - %msg%n
+                    [%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - ${returnId} - %msg%n
                 </pattern>
-
             </PatternLayout>
         </File>
 
@@ -30,10 +21,10 @@
             <FileName>${log-path}/global.log</FileName>
             <FilePattern>${archive}/%d{yyyy-MM-dd-hh-mm-ss}.log.zip</FilePattern>
             <PatternLayout>
-                <Pattern>%-5level %d{yyyy-MMM-dd HH:mm:ss a} [%t] %c{1} %logger{36} - $returnId  - %msg%n</Pattern>
+                <Pattern>%-5level %d{yyyy-MMM-dd HH:mm:ss a} [%t] %c{1} %logger{36} - ${returnId} - %msg%n</Pattern>
             </PatternLayout>
             <Policies>
-                <TimeBasedTriggeringPolicy interval="2" modulate="true" />
+                <!--<TimeBasedTriggeringPolicy />-->
                 <SizeBasedTriggeringPolicy size="100 MB" />
             </Policies>
             <DefaultRolloverStrategy max="5" />

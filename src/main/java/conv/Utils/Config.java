@@ -60,7 +60,7 @@ public class Config {
                 try {
                     uid.put(Integer.parseInt(split[0]), split[1]);
                 }catch (NumberFormatException e){
-                    //TODO: Warning: файл ogv неверный
+                    LogManager.getRootLogger().warn(String.format("Считывание конфигурации: не удалось преобразовать строку \"%s\"", line));
                 }
             }
         }

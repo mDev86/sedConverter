@@ -2,7 +2,6 @@ package conv.Utils;
 
 import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.docInfo.DocumentInfo;
-import conv.POJO.docInfo.Sender;
 import conv.POJO.esd.ESD;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
@@ -18,12 +17,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class XMLReader {
 
@@ -34,6 +33,8 @@ public class XMLReader {
         try {
             files = Files.walk(Paths.get(path)).
                     filter(file -> file.toString().toLowerCase().endsWith(".esd")).map(Path::toFile).collect(Collectors.toList());
+        } catch (NoSuchFileException e) {
+            throw new CustomWorkExceptions(String.format("Ошибка, отсутствует директория \"in\" (\"%s\")", path));
         } catch (IOException e) {
             throw new CustomWorkExceptions(String.format("Ошибка чтения директории \"%s\"", path), e);
         }

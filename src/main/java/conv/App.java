@@ -11,22 +11,17 @@ import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Hello world!
- *
- */
 public class App
 {
     public static void main( String[] args )
     {
-        Logger log = LogManager.getRootLogger();
-        Logger onlyLog = LogManager.getLogger("error");
-
         final String basePath;
         final String messageId;
         final String returnId;
@@ -37,13 +32,16 @@ public class App
             returnId = args[1];
             Dit2Dir = Boolean.valueOf(args[2]);
             messageId = args[3];
-        }catch (Exception e){
-            log.error("Неправильный вызов утилиты: неверный набор параметров.");
+        } catch (Exception e){
+            System.err.println("Неправильный вызов утилиты: неверный набор параметров - [Путь до рабочей папки] [returnId] [Dit2Dir] [messageId]");
+            System.exit(-1);
             return;
         }
 
         System.setProperty("returnId", returnId);
         System.setProperty("basePath", basePath);
+        Logger log = LogManager.getRootLogger();
+        Logger onlyLog = LogManager.getLogger("error");
 
         log.info(String.format("Запуск утилиты. Преобразование %s.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
 
@@ -53,10 +51,10 @@ public class App
             }else{
                 DirToDit(basePath, returnId, messageId);
             }
-        }catch (CustomWorkExceptions customWorkExceptions) {
+            log.info(String.format("Преобразование файлов %s успешно выполнено.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
+        } catch (CustomWorkExceptions customWorkExceptions) {
             log.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
             onlyLog.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
-            System.out.println("error");
             System.exit(1);
         }
 
@@ -66,12 +64,14 @@ public class App
         String pathIn =  basePath + "\\in";
         String pathOut = basePath + "\\out";
 
-
         File CatIn = new File(pathIn);
         File[] files = CatIn.listFiles((dir, name) -> FilenameUtils.getExtension(name).equalsIgnoreCase("xml"));
 
+        if(files == null){
+            throw new CustomWorkExceptions(String.format(String.format("Dit2Dir: В указанном каталоге \"%s\" нет файлов с расширением .xml", CatIn.getPath())),  null);
+        }
+
         File docInfo = Arrays.stream(files).filter(it -> {
-                System.out.println(it.getName());
                 return
                         it.getName().equalsIgnoreCase("docinfo.xml")
                                 || it.getName().equalsIgnoreCase("documentinfo.xml");
@@ -80,7 +80,7 @@ public class App
             .orElse(null);
 
         if(docInfo == null){
-            throw new CustomWorkExceptions(String.format("Файл docinfo.xml не найден"),  null);
+            throw new CustomWorkExceptions(String.format("Dit2Dir: Файл docinfo.xml не найден"),  null);
         }
 
         DocumentInfo documentInfo = XMLReader.loadDocInfoFromXml(docInfo);
@@ -89,22 +89,23 @@ public class App
             try {
                 esd.saveToFile(pathOut);
             } catch (JAXBException e) {
-                throw new CustomWorkExceptions("Ошибка при сохранении esd файла", e);
+                throw new CustomWorkExceptions("Dit2Dir: Ошибка при сохранении esd файла", e);
             }
         }
     }
 
     private static void DirToDit(String basePath, String returnId, String messageId) throws CustomWorkExceptions {
-        Path in = Paths.get(basePath, "in");
-        Path out = Paths.get(basePath, "out");
+        String pathIn = Paths.get(basePath, "in").toString();
+        String pathOut = Paths.get(basePath, "out").toString();
+        new File(pathOut).mkdir();
 
-        List<ESD> esds = XMLReader.loadESDFiles(in.toString());
+        List<ESD> esds = XMLReader.loadESDFiles(pathIn);
 
         if (esds == null || esds.size() ==0) {
-            throw new CustomWorkExceptions("Файлы *.esd не найдены");
+            throw new CustomWorkExceptions(String.format("DirToDit: Файлы *.esd не найдены в дрректории \"%s\"", pathIn));
         }
 
-        ESDConverter.convert(esds, out.toString(), returnId, messageId);
+        ESDConverter.convert(esds, pathOut, returnId, messageId);
     }
 
 }

@@ -8,16 +8,13 @@ import conv.POJO.esd.*;
 import conv.Utils.Config;
 import conv.Utils.FileConvert;
 import conv.Utils.SigParser;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
-import org.bouncycastle.cms.CMSException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
@@ -25,7 +22,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -202,7 +200,7 @@ public class DocumentInfo
         JAXBContext jaxbContext = JAXBContext.newInstance(DocumentInfo.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
 
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
 
         marshaller.marshal(this, file);
     }
@@ -274,6 +272,20 @@ public class DocumentInfo
                                 } catch (DatatypeConfigurationException e) {
                                     LogManager.getRootLogger().warn("Проблема при преобразовании даты в формат XMLGregorianCalendar", e);
                                     //TODO: Сделать ручной вариант преобразования
+                                  /*  date = registrationInfo.getDate();
+
+                                    if(date.getHour() < 0) date.setHour(0);
+                                    if(date.getMinute() < 0) date.setMinute(0);
+                                    if(date.getSecond() < 0) date.setSecond(0);
+                                    if(date.getMillisecond() < 0) date.setMillisecond(0);
+                                    ZoneOffset s = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
+                                    date.setTimezone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds());
+
+                                    //date.setTimezone(300);
+
+                                    System.out.println(date);*/
+
+
                                     e.printStackTrace();
                                 }
                                 header.setNumber(registrationInfo.getNumber());
@@ -383,7 +395,6 @@ public class DocumentInfo
                     }
                 }
             } else {
-                //TODO:
                 throw new CustomWorkExceptions("Отсутствует список РК (<DocumentList>).", null);
             }
         }

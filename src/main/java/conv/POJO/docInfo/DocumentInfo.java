@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -208,7 +210,7 @@ public class DocumentInfo
     public List<ESD> toESD(String sourceCatlog) throws CustomWorkExceptions {
         List<ESD> esds = new ArrayList<>();
 
-        String Organization = "";
+        String Organization = null;
         List<ResourceInfo> listResource = null;
 
         MessageHeader messageHeader = this.getHeader();
@@ -226,8 +228,12 @@ public class DocumentInfo
                         } catch (IOException e) {
                             LogManager.getRootLogger().warn("Ошибка записи или считывания файла с uid огв", e);
                         }
-                        if (Organization == null) {
-                            Organization = organization.shortName;
+                        if (Organization == null || Organization.isEmpty()) {
+                            if(organization.getFullName() != null){
+                                Organization = organization.getFullName();
+                            }else {
+                                Organization = organization.getShortName();
+                            }
                         }
                     }
                 }
@@ -268,24 +274,15 @@ public class DocumentInfo
                                 //Приведение к нормализованному виду
                                 XMLGregorianCalendar date = null;
                                 try {
+                                    date = registrationInfo.getDate();
                                     date = DatatypeFactory.newInstance().newXMLGregorianCalendar(registrationInfo.getDate().toGregorianCalendar());
                                 } catch (DatatypeConfigurationException e) {
                                     LogManager.getRootLogger().warn("Проблема при преобразовании даты в формат XMLGregorianCalendar", e);
-                                    //TODO: Сделать ручной вариант преобразования
-                                  /*  date = registrationInfo.getDate();
-
                                     if(date.getHour() < 0) date.setHour(0);
                                     if(date.getMinute() < 0) date.setMinute(0);
                                     if(date.getSecond() < 0) date.setSecond(0);
                                     if(date.getMillisecond() < 0) date.setMillisecond(0);
-                                    ZoneOffset s = ZoneOffset.systemDefault().getRules().getOffset(LocalDateTime.now());
-                                    date.setTimezone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds());
-
-                                    //date.setTimezone(300);
-
-                                    System.out.println(date);*/
-
-
+                                    date.setTimezone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()).getTotalSeconds()/60);
                                     e.printStackTrace();
                                 }
                                 header.setNumber(registrationInfo.getNumber());

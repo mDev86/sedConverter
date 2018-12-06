@@ -1,7 +1,7 @@
 package conv.Utils;
 
 import conv.POJO.DeloConfig;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 
 import javax.xml.bind.JAXBContext;
@@ -48,7 +48,7 @@ public class Config {
         File ogv = new File("conf\\ogv");
         if(!ogv.exists()){
             FileOutputStream fos = new FileOutputStream(ogv);
-            fos.write(FileUtils.readFileToByteArray(new File(getClass().getClassLoader().getResource("UIDogv").getFile())));
+            fos.write(IOUtils.toByteArray(getClass().getResourceAsStream("/UIDogv")));
             fos.close();
         }
 

@@ -11,9 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +52,10 @@ public class App
         } catch (CustomWorkExceptions customWorkExceptions) {
             log.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
             onlyLog.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
+            System.exit(1);
+        }catch (RuntimeException err){
+            log.error(err, err.fillInStackTrace());
+            onlyLog.error(err, err.fillInStackTrace());
             System.exit(1);
         }
 

@@ -8,11 +8,10 @@ import conv.POJO.esd.*;
 import conv.Utils.Config;
 import conv.Utils.FileConvert;
 import conv.Utils.SigParser;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -198,13 +197,7 @@ public class DocumentInfo
 
     public void saveToXML(String path) throws JAXBException {
         File file = new File(Paths.get(path, "DocInfo.xml").toString());
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(DocumentInfo.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, false);
-
-        marshaller.marshal(this, file);
+        FileConvert.getMarshall().marshal(this, file);
     }
 
     public List<ESD> toESD(String sourceCatlog) throws CustomWorkExceptions {
@@ -265,8 +258,6 @@ public class DocumentInfo
                             /**Заполнение ESD.Header **/
                             Header header = new Header();
                             header.setType("Document");
-                            header.setName(file.getDescription());
-                            header.setExtension(file.getExtension());
                             header.setOrganization(Organization);
 
                             RegistrationInfo registrationInfo = doc.getRegistrationInfo();
@@ -290,7 +281,7 @@ public class DocumentInfo
                                 header.setModified(date);
                             }
                             header.setGlobalID(doc.getUID());
-                            esd.setHeader(header);
+
 
                             /**Заполнение ESD.ExtAttributes **/
                             ID id = new ID();
@@ -318,73 +309,58 @@ public class DocumentInfo
                             esd.setExtAttributes(attributes);
 
 
-                            /**Записываем сам файл**/
+                            String ext = file.getExtension().replace(".","");
+                            String descr = file.getDescription();
+
                             int fileResourceID = file.getResourceID();
                             ResourceInfo fileInfo = listResource.stream()
                                     .filter(it -> Integer.parseInt(it.getUID()) == fileResourceID)
                                     .findFirst()
                                     .orElse(null);
-                            if (fileInfo != null) {
-                                esd.setContents(
-                                        FileConvert.FileToBase64(new File(sourceCatlog, fileInfo.getUniqueName()))
-                                );
-                            }
 
+                            DigitalSignatures digitalSignatures = new DigitalSignatures();
 
-                            /**Заполнение ЭП**/
-                            List<EDS> edss = file.getEDS();
-                            if (edss != null) {
-                                DigitalSignatures digitalSignatures = new DigitalSignatures();
-                                for (EDS eds : edss) {
-                                    int edsResourceID = eds.getResourceID();
-                                    ResourceInfo edsInfo = listResource.stream()
-                                            .filter(it -> Integer.parseInt(it.getUID()) == edsResourceID)
-                                            .findFirst()
-                                            .orElse(null);
-                                    if (edsInfo != null) {
-                                        DigitalSignature ds = new DigitalSignature();
-                                        File thisFile = new File(sourceCatlog, edsInfo.getUniqueName());
-                                        SigInfo sigInfo = new SigParser(thisFile).parse();
+                            if(ext.equalsIgnoreCase("sig")){
+                                //Файл вместе с подписью как основной и единственный
+                                descr = descr.substring(0, descr.lastIndexOf('.'));
+                                ext = FilenameUtils.getExtension(descr);
 
-                                        ds.setCertificateIssuedTo(sigInfo.getConcatSubject());
-                                        ds.setCryptoProvider("CryptoPro Encryption");
-                                        ds.setSignatureType(SignType.getName(eds.getKindID()));
+                                if (fileInfo != null) {
+                                    File thisFile = new File(sourceCatlog, fileInfo.getUniqueName());
+                                    SigInfo sigInfo = new SigParser(thisFile).parse();
+                                    esd.setContents(java.util.Base64.getEncoder().encodeToString(sigInfo.getContent()));
+                                    digitalSignatures.getDigitalSignature().add(generateDigSign(sigInfo, 0));
+                                }
+                            }else{
+                                /**Записываем сам файл**/
+                                if (fileInfo != null) {
+                                    esd.setContents(
+                                            FileConvert.FileToBase64(new File(sourceCatlog, fileInfo.getUniqueName()))
+                                    );
+                                }
 
-                                        ds.setData(FileConvert.FileToBase64(thisFile));
-                                        ds.setSigned(sigInfo.getSignedToXMLGregorianCalendar());
+                                /**Заполнение ЭП**/
+                                List<EDS> edss = file.getEDS();
+                                if (edss != null) {
 
-                                        /**Устанавливаем атрибуты подписи**/
-                                        Attributes attrs = new Attributes();
-                                        Comment comment = new Comment();
-                                        comment.setName("Comment");
-                                        comment.setType("String");
-                                        comment.setIsNull(false);
-
-
-                                        comment.setValue(SignType.getName(eds.getKindID()));
-                                        attrs.setComment(comment);
-
-                                        SignedByUserName signedUser = new SignedByUserName();
-                                        signedUser.setName("SignedByUserName");
-                                        signedUser.setType("String");
-                                        signedUser.setIsNull(false);
-                                        signedUser.setValue(sigInfo.getEmail());
-                                        attrs.setSignedByUserName(signedUser);
-
-                                        InTheNameOfUserName nameUser = new InTheNameOfUserName();
-                                        nameUser.setName("InTheNameOfUserName");
-                                        nameUser.setType("String");
-                                        nameUser.setIsNull(false);
-                                        nameUser.setValue(sigInfo.getEmail());
-                                        attrs.setInTheNameOfUserName(nameUser);
-                                        ds.setAttributes(attrs);
-
-                                        digitalSignatures.getDigitalSignature().add(ds);
+                                    for (EDS eds : edss) {
+                                        int edsResourceID = eds.getResourceID();
+                                        ResourceInfo edsInfo = listResource.stream()
+                                                .filter(it -> Integer.parseInt(it.getUID()) == edsResourceID)
+                                                .findFirst()
+                                                .orElse(null);
+                                        if (edsInfo != null) {
+                                            File thisFile = new File(sourceCatlog, edsInfo.getUniqueName());
+                                            SigInfo sigInfo = new SigParser(thisFile).parse();
+                                            digitalSignatures.getDigitalSignature().add(generateDigSign(sigInfo, eds.getKindID()));
+                                        }
                                     }
                                 }
-                                esd.setDigitalSignatures(digitalSignatures);
                             }
-
+                            header.setName(descr);
+                            header.setExtension(ext);
+                            esd.setHeader(header);
+                            esd.setDigitalSignatures(digitalSignatures);
                             esds.add(esd);
                         }
                     } else {
@@ -397,4 +373,42 @@ public class DocumentInfo
         }
         return esds;
     }
+
+    private DigitalSignature generateDigSign(SigInfo sigInfo, Integer kindId) throws CustomWorkExceptions {
+        DigitalSignature ds = new DigitalSignature();
+        ds.setCertificateIssuedTo(sigInfo.getConcatSubject());
+        ds.setCryptoProvider("CryptoPro Encryption");
+        ds.setSignatureType(SignType.getName(kindId));
+
+        ds.setData(sigInfo.getItselInBase64());
+        ds.setSigned(sigInfo.getSignedToXMLGregorianCalendar());
+
+        /**Устанавливаем атрибуты подписи**/
+        Attributes attrs = new Attributes();
+        Comment comment = new Comment();
+        comment.setName("Comment");
+        comment.setType("String");
+        comment.setIsNull(false);
+
+        comment.setValue(SignType.getName(kindId));
+        attrs.setComment(comment);
+
+        SignedByUserName signedUser = new SignedByUserName();
+        signedUser.setName("SignedByUserName");
+        signedUser.setType("String");
+        signedUser.setIsNull(false);
+        signedUser.setValue(sigInfo.getEmail());
+        attrs.setSignedByUserName(signedUser);
+
+        InTheNameOfUserName nameUser = new InTheNameOfUserName();
+        nameUser.setName("InTheNameOfUserName");
+        nameUser.setType("String");
+        nameUser.setIsNull(false);
+        nameUser.setValue(sigInfo.getEmail());
+        attrs.setInTheNameOfUserName(nameUser);
+        ds.setAttributes(attrs);
+
+        return ds;
+    }
+
 }

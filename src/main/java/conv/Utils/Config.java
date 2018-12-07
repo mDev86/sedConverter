@@ -1,5 +1,6 @@
 package conv.Utils;
 
+import conv.App;
 import conv.POJO.DeloConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,8 +19,10 @@ public class Config {
     private DeloConfig deloConfig;
     private static Config config;
 
+    private static final String basePath = Paths.get(new File(App.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "conf").toString();
+
     public static Config getInstance() throws IOException {
-        File folderConf = new File("conf");
+        File folderConf = new File(basePath);
         if (!folderConf.exists()) {
             folderConf.mkdir();
         }
@@ -45,7 +49,7 @@ public class Config {
      */
     private Map<Integer, String> loadOGV() throws IOException {
 
-        File ogv = new File("conf\\ogv");
+        File ogv = new File(basePath,"ogv");
         if(!ogv.exists()){
             FileOutputStream fos = new FileOutputStream(ogv);
             fos.write(IOUtils.toByteArray(getClass().getResourceAsStream("/UIDogv")));
@@ -75,7 +79,7 @@ public class Config {
     private DeloConfig loadDeloConf() throws JAXBException {
         DeloConfig result = null;
 
-        File file = new File("conf\\DeloConfig.xml");
+        File file = new File(basePath,"DeloConfig.xml");
         JAXBContext jaxbContext = JAXBContext.newInstance(DeloConfig.class);
         if (file.exists()) {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();

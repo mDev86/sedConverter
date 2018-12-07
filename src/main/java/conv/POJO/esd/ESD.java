@@ -8,20 +8,15 @@
 
 package conv.POJO.esd;
 
-import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import conv.Exceptions.CustomWorkExceptions;
 import conv.Utils.FileConvert;
 import conv.Utils.JAXBAdapter.AdapterCDATA;
 import org.apache.commons.io.FilenameUtils;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.nio.file.Paths;
 
@@ -273,21 +268,6 @@ public class ESD
         File file = new File(path);
         file.mkdirs();
         file = new File(path,this.getHeader().name+".esd");
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(ESD.class);
-        Marshaller marshaller = jaxbContext.createMarshaller();
-
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        marshaller.setProperty(CharacterEscapeHandler.class.getName(),
-                new CharacterEscapeHandler() {
-                    @Override
-                    public void escape(char[] ac, int i, int j, boolean flag,
-                                       Writer writer) throws IOException {
-                        writer.write(ac, i, j);
-                    }
-                });
-
-        marshaller.marshal(this, file);
+        FileConvert.getMarshall().marshal(this, file);
     }
 }

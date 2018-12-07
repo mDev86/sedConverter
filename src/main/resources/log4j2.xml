@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration monitorInterval="60">
     <Properties>
-        <Property name="log-path">logs</Property>
+        <Property name="log-path">${sys:startPath}/logs</Property>
         <Property name="archive">${log-path}/archive</Property>
         <Property name="returnId">${sys:returnId}</Property>
         <Property name="basePath">${sys:basePath}</Property>

@@ -15,6 +15,7 @@ public class SigInfo{
     private List<String> Subject;
     private Date Signed;
     private String Email;
+    private byte[] Itsel;
     private byte[] Content;
 
     public SigInfo() {
@@ -74,5 +75,17 @@ public class SigInfo{
 
     public void setEmail(String email) {
         Email = email;
+    }
+
+    public byte[] getItsel() {
+        return Itsel;
+    }
+
+    public void setItsel(byte[] itsel) {
+        Itsel = itsel;
+    }
+
+    public String getItselInBase64(){
+        return java.util.Base64.getEncoder().encodeToString(Itsel);
     }
 }

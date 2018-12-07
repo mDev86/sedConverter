@@ -37,8 +37,9 @@ public class App
 
         System.setProperty("returnId", returnId);
         System.setProperty("basePath", basePath);
+        System.setProperty("startPath", new File(App.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent());
+
         Logger log = LogManager.getRootLogger();
-        Logger onlyLog = LogManager.getLogger("error");
 
         log.info(String.format("Запуск утилиты. Преобразование %s.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
 
@@ -51,10 +52,12 @@ public class App
             log.info(String.format("Преобразование файлов %s успешно выполнено.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
         } catch (CustomWorkExceptions customWorkExceptions) {
             log.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
+            Logger onlyLog = LogManager.getLogger("error");
             onlyLog.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
             System.exit(1);
         }catch (RuntimeException err){
             log.error(err, err.fillInStackTrace());
+            Logger onlyLog = LogManager.getLogger("error");
             onlyLog.error(err, err.fillInStackTrace());
             System.exit(1);
         }

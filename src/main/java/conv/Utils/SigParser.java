@@ -47,6 +47,7 @@ public class SigParser {
             }
 
             CMSSignedData signature = new CMSSignedData(buffer);
+            info.setItsel(buffer);
             Store cs = signature.getCertificates(); //Список всех сертификатов
 
             SignerInformationStore signers = signature.getSignerInfos(); //Информация о сертификатах, которыми подписан документ

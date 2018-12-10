@@ -2,7 +2,6 @@ package conv.Utils;
 
 import com.sun.xml.bind.marshaller.CharacterEscapeHandler;
 import conv.Exceptions.CustomWorkExceptions;
-import conv.POJO.esd.ESD;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -38,11 +37,11 @@ public class FileConvert {
         }
     }
 
-    public static Marshaller getMarshall(Class clazz, Boolean formatedOutput) throws JAXBException {
+    public static Marshaller getMarshall(Class clazz, Boolean formattedOutput) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
         Marshaller marshaller = jaxbContext.createMarshaller();
 
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatedOutput);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formattedOutput);
         marshaller.setProperty("jaxb.encoding", "UTF-8");
 
         marshaller.setProperty(CharacterEscapeHandler.class.getName(),

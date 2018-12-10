@@ -268,6 +268,6 @@ public class ESD
         File file = new File(path);
         file.mkdirs();
         file = new File(path,this.getHeader().name+".esd");
-        FileConvert.getMarshall().marshal(this, file);
+        FileConvert.getMarshall(ESD.class, true).marshal(this, file);
     }
 }

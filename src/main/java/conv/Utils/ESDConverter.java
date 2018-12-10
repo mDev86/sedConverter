@@ -20,7 +20,7 @@ import java.util.*;
 
 public class ESDConverter {
 
-    public static ESD getMain(List<ESD> esds) {
+    private static ESD getMain(List<ESD> esds) {
         for (ESD esd: esds) {
             if (!esd.getHeader().getNumber().isEmpty())
                 return esd;

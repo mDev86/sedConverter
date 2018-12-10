@@ -38,11 +38,11 @@ public class FileConvert {
         }
     }
 
-    public static Marshaller getMarshall() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(ESD.class);
+    public static Marshaller getMarshall(Class clazz, Boolean formatedOutput) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
         Marshaller marshaller = jaxbContext.createMarshaller();
 
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formatedOutput);
         marshaller.setProperty("jaxb.encoding", "UTF-8");
 
         marshaller.setProperty(CharacterEscapeHandler.class.getName(),
@@ -50,9 +50,9 @@ public class FileConvert {
                     @Override
                     public void escape(char[] ac, int i, int j, boolean flag,
                                        Writer writer) throws IOException {
-                        if(String.valueOf(ac).contains("CDATA")) {
+                        if (String.valueOf(ac).contains("CDATA")) {
                             writer.write(ac, i, j);
-                        }else{
+                        } else {
                             StringBuffer buffer = new StringBuffer();
 
                             Matcher matcher = Pattern.compile("\"").matcher(String
@@ -62,7 +62,8 @@ public class FileConvert {
                             }
                             matcher.appendTail(buffer);
                             char t[] = buffer.toString().toCharArray();
-                            writer.write(t, i, t.length);                         }
+                            writer.write(t, i, t.length);
+                        }
                     }
                 });
         return marshaller;

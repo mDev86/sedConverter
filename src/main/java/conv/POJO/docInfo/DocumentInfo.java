@@ -197,7 +197,7 @@ public class DocumentInfo
 
     public void saveToXML(String path) throws JAXBException {
         File file = new File(Paths.get(path, "DocInfo.xml").toString());
-        FileConvert.getMarshall().marshal(this, file);
+        FileConvert.getMarshall(DocumentInfo.class, false).marshal(this, file);
     }
 
     public List<ESD> toESD(String sourceCatlog) throws CustomWorkExceptions {

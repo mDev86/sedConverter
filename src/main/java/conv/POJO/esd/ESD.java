@@ -250,8 +250,12 @@ public class ESD
      */
     public String getFileName() {
         String fileName = this.getHeader().getName();
+        //Обрезаем длину имени файла
         fileName = fileName.substring(0, Math.min(fileName.length(), 100));
         fileName += FilenameUtils.getExtension(fileName).equalsIgnoreCase(this.getHeader().getExtension())? "":"." + this.getHeader().getExtension().toLowerCase();
+
+        //Удалям запрещенные в имени файла символы
+        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "");
 
         return fileName;
     }

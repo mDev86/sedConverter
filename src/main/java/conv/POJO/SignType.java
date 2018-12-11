@@ -1,6 +1,7 @@
 package conv.POJO;
 
 /**
+ * Ассоциации используемых подписей
  * KindId - В деле - Directum
  * 0 – Не определенная - Approving
  * 1 – Авторская - Approving

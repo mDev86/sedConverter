@@ -244,6 +244,10 @@ public class ESD
         this.version = value;
     }
 
+    /**
+     * Определяем имя текущего файла
+     * @return Имя файла
+     */
     public String getFileName() {
         String fileName = this.getHeader().getName();
         //Обрезаем длину имени файла
@@ -256,6 +260,11 @@ public class ESD
         return fileName;
     }
 
+    /**
+     * Извлекает из текущего esd файл и подписи
+     * @param path Путь сохранения файлов
+     * @throws CustomWorkExceptions
+     */
     public void extractFile(String path) throws CustomWorkExceptions {
         String filePath = Paths.get(path, getFileName()).toString();
         FileConvert.Base64ToFile(this.getContents(), filePath);
@@ -268,6 +277,11 @@ public class ESD
         }
     }
 
+    /**
+     * Сохраняет текущий экземпляр с данными в esd файл (Сериализация)
+     * @param path Путь до папки, в которой необходимо сохранить файл
+     * @throws JAXBException
+     */
     public void saveToFile(String path) throws JAXBException {
         File file = new File(path);
         file.mkdirs();

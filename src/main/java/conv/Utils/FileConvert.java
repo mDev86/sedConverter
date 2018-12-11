@@ -14,6 +14,12 @@ import java.util.regex.Pattern;
 
 public class FileConvert {
 
+    /**
+     * Преобразование файла из формата base64 в бинарный файл
+     * @param base64Content Преобразуемый файл в формате base64
+     * @param path Путь сохраняемого файла
+     * @throws CustomWorkExceptions
+     */
     public static void Base64ToFile(String base64Content, String path) throws CustomWorkExceptions{
         try {
             FileOutputStream fos = new FileOutputStream(path, false);
@@ -27,6 +33,12 @@ public class FileConvert {
         }
     }
 
+    /**
+     * Преобразование файла в формат base64
+     * @param file Путь до файла
+     * @return Строка в формате base64
+     * @throws CustomWorkExceptions
+     */
     public static String FileToBase64(File file) throws CustomWorkExceptions {
         try {
             byte[] fileContent = FileUtils.readFileToByteArray(file);
@@ -37,6 +49,13 @@ public class FileConvert {
         }
     }
 
+    /**
+     * Создает экземпляр marshaller с экранированием двойных кавычек
+     * @param clazz Класс для сереализации
+     * @param formattedOutput True - форматированный вывод в файл; False - не форматированный вывод (в одну строку)
+     * @return Экземпляр marshaller
+     * @throws JAXBException
+     */
     public static Marshaller getMarshall(Class clazz, Boolean formattedOutput) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
         Marshaller marshaller = jaxbContext.createMarshaller();

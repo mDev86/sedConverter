@@ -15,10 +15,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Класс-helper для конвертирования списка esd файлов в DocInfo
@@ -26,9 +23,9 @@ import java.util.TimeZone;
 public class ESDConverter {
 
     /**
-     * Функция определения главного esd'шника из списка
-     * @param esds
-     * @return
+     * Поиск главного файла, содержацего номер РК
+     * @param esds Список со всеми esd файлами
+     * @return Информация о главном esd файле
      */
     private static ESD getMain(List<ESD> esds) {
         for (ESD esd: esds) {
@@ -40,11 +37,11 @@ public class ESDConverter {
     }
 
     /**
-     * Функция конвертирования списка esd файлов в DocInfo
-     * @param esds лист esd
-     * @param outpuPath директория в которую будет сгенерированн файл DocInfo
-     * @param returnId идентификатор для матчинга сообщений
-     * @param messageId идентификатор для матчинга сообщений
+     * Формирование комплекта файлов для дела из esd файлов
+     * @param esds Список всех esd файлов для преобразования
+     * @param outpuPath Путь для сохранения новых файлов
+     * @param returnId идентификатор returnId для матчинга сообщений
+     * @param messageId идентификатор messageId для матчинга сообщений
      * @throws CustomWorkExceptions
      */
     public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws CustomWorkExceptions {
@@ -212,7 +209,6 @@ public class ESDConverter {
 
         result.setSubscriptions(subscriptions);
 
-        //Сохраняем Docinfo в outpuPath
         try {
             result.saveToXML(outpuPath);
         } catch (JAXBException e) {

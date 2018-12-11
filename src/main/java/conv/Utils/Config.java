@@ -21,6 +21,7 @@ public class Config {
 
     private static final String basePath = Paths.get(new File(App.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(), "conf").toString();
 
+    /** Получаем экземпляр класса настроек (Singleton) **/
     public static Config getInstance() throws IOException {
         File folderConf = new File(basePath);
         if (!folderConf.exists()) {
@@ -44,7 +45,7 @@ public class Config {
 
     /**
      * Считывает (Если не существует-создает) справочник с uid органов гос власти
-     * @returnАссоциативный массив uid:name
+     * @return Ассоциативный массив uid:name
      * @throws IOException ошибка при создании нового файла
      */
     private Map<Integer, String> loadOGV() throws IOException {
@@ -76,6 +77,11 @@ public class Config {
         return OGVuid;
     }
 
+    /**
+     * Считываем (Если не существует-создаем) файл настроек для заполения docInfo.xml
+     * @return Информация для заполения динамических полей docInfo
+     * @throws JAXBException
+     */
     private DeloConfig loadDeloConf() throws JAXBException {
         DeloConfig result = null;
 

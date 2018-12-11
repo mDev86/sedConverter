@@ -6,7 +6,6 @@ import conv.POJO.SignType;
 import conv.POJO.docInfo.*;
 import conv.POJO.esd.DigitalSignature;
 import conv.POJO.esd.ESD;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,10 +15,21 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
+/**
+ * Класс-helper для конвертирования списка esd файлов в DocInfo
+ */
 public class ESDConverter {
 
+    /**
+     * Функция определения главного esd'шника из списка
+     * @param esds
+     * @return
+     */
     private static ESD getMain(List<ESD> esds) {
         for (ESD esd: esds) {
             if (!esd.getHeader().getNumber().isEmpty())
@@ -29,10 +39,21 @@ public class ESDConverter {
         return null;
     }
 
+    /**
+     * Функция конвертирования списка esd файлов в DocInfo
+     * @param esds лист esd
+     * @param outpuPath директория в которую будет сгенерированн файл DocInfo
+     * @param returnId идентификатор для матчинга сообщений
+     * @param messageId идентификатор для матчинга сообщений
+     * @throws CustomWorkExceptions
+     */
     public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws CustomWorkExceptions {
         Logger logger = LogManager.getRootLogger();
+
+        //Корневой элемент XML
         DocumentInfo result = new DocumentInfo();
 
+        //Считывание и десерелизация файла с информацией о отправителе, получателе и авторе (элемнты Sender, Recipient, Author)
         DeloConfig deloConfig = null;
         try {
             deloConfig = Config.getInstance().getDeloCofig();
@@ -43,14 +64,17 @@ public class ESDConverter {
             throw new CustomWorkExceptions("Ошибка чтения параметров отправителя и получателя");
         }
 
+        //Определяем главный документ
         ESD main = getMain(esds);
         if (main == null) {
             throw new CustomWorkExceptions("Ошибка определения главного документа");
         }
 
+        //Элемент Header
         MessageHeader header = new MessageHeader();
         result.setHeader(header);
 
+        //Устанавливаем атрибуты Header'а
         header.setResourceID(0);
         header.setMessageType(DocumentMessageType.MAIN_DOC);
         header.setVersion("1.0");
@@ -72,16 +96,21 @@ public class ESDConverter {
         header.setSender(deloConfig.getSender());
         header.setRecipient(deloConfig.getRecipient());
 
+        //Элемент Header-ResourceList
+        ResourceList rl = new ResourceList();
+
+        //Нулевой элемент сам файл DocInfo.xml
         ResourceInfo riDI = new ResourceInfo();
         riDI.setUID("0");
         riDI.setUniqueName("DocInfo.xml");
 
-        ResourceList rl = new ResourceList();
         rl.getResource().add(riDI);
 
+        //Элемент DocumentList
         DocumentList dl = new DocumentList();
         result.setDocumentList(dl);
 
+        //Элемнт DocumentList-Document
         Document doc = new Document();
         doc.setUID(main.getHeader().getGlobalID().replace("-", "").substring(1, 32));
         doc.setType(DocumentType.CREATED);
@@ -110,15 +139,17 @@ public class ESDConverter {
         doc.setRegistrationInfo(regInfo);
         dl.getDocument().add(doc);
 
+        //Генерация записей и элементов Header-ResourceList, DocumentList-File
+        //И сохранение самих файлов и подписей, если они есть
         for (ESD esd: esds) {
+            //Элемент Header-ResourceList
             ResourceInfo ri = new ResourceInfo();
 
+            //Элемент DocumentList-File
             DeloFile df = new DeloFile();
             doc.getFile().add(df);
 
-            String fileName = esd.getHeader().getName();
-            fileName = fileName.substring(0, Math.min(fileName.length(), 100));
-            fileName += FilenameUtils.getExtension(fileName).equalsIgnoreCase(esd.getHeader().getExtension())? "":"." + esd.getHeader().getExtension().toLowerCase();
+            String fileName = esd.getFileName();
 
             ri.setUID(String.valueOf(rl.getResource().size()));
             ri.setUniqueName(fileName);
@@ -130,8 +161,10 @@ public class ESDConverter {
             df.setDescription(esd.getHeader().getName());
             df.setExtension("." + esd.getHeader().getExtension());
 
+            //Если esd содержит подписи добавляем их в Header-ResourceList и DocumentList-File в элемент EDS
             int signNumber = 0;
             for (DigitalSignature ds: esd.getDigitalSignatures().getDigitalSignature()) {
+                //Header-ResourceList
                 ri = new ResourceInfo();
                 ri.setUID(String.valueOf(rl.getResource().size()));
                 ri.setUniqueName(String.format("%s.%s.sig", fileName, signNumber));
@@ -148,12 +181,13 @@ public class ESDConverter {
             }
             doc.getAuthor().add(deloConfig.getDocumentAuthor());
 
-
+            //Извлекаем файл и подписи, если они есть
             esd.extractFile(outpuPath);
         }
 
         header.setResourceList(rl);
 
+        //Формируем элемнт Subscriptions
         Subscriptions subscriptions = new Subscriptions();
         subscriptions.setStopDayCount(30);
 
@@ -178,6 +212,7 @@ public class ESDConverter {
 
         result.setSubscriptions(subscriptions);
 
+        //Сохраняем Docinfo в outpuPath
         try {
             result.saveToXML(outpuPath);
         } catch (JAXBException e) {

@@ -17,6 +17,15 @@ import java.util.List;
 
 public class App
 {
+    /**
+     * Утилита принимает на вход 4 обязательных параметра
+     * @param args [Путь до рабочей папки] [returnId] [Направление конвертирования] [messageId]
+     * Рабочая папка должна содержать папку "in" с файлами для конвертации
+     * Завершение утилиты возможно кодами:
+     *     -1: Неправильный вызов утилиты, ошибка с передачей параметров
+     *      0: Преобразование успешно завершилось
+     *      1: Ошибка при преобраззовании файлов
+     */
     public static void main( String[] args )
     {
         final String basePath;
@@ -64,6 +73,11 @@ public class App
 
     }
 
+    /**
+     * Преобразование файлов из Дела в Directum
+     * @param basePath Путь до рабочей папки
+     * @throws CustomWorkExceptions
+     */
     private static void DitToDir(String basePath) throws CustomWorkExceptions {
         String pathIn =  basePath + "\\in";
         String pathOut = basePath + "\\out";
@@ -98,6 +112,13 @@ public class App
         }
     }
 
+    /**
+     * Преобразование файлов из Directum в Дело
+     * @param basePath Путь до рабочей папки
+     * @param returnId returnId - входной параметр утилиты
+     * @param messageId messageId - входной параметр утилиты
+     * @throws CustomWorkExceptions
+     */
     private static void DirToDit(String basePath, String returnId, String messageId) throws CustomWorkExceptions {
         String pathIn = Paths.get(basePath, "in").toString();
         String pathOut = Paths.get(basePath, "out").toString();

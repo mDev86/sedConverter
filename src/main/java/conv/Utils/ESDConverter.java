@@ -20,6 +20,11 @@ import java.util.*;
 
 public class ESDConverter {
 
+    /**
+     * Поиск главного файла, содержацего номер РК
+     * @param esds Список со всеми esd файлами
+     * @return Информация о главном esd файле
+     */
     private static ESD getMain(List<ESD> esds) {
         for (ESD esd: esds) {
             if (!esd.getHeader().getNumber().isEmpty())
@@ -29,6 +34,14 @@ public class ESDConverter {
         return null;
     }
 
+    /**
+     * Формирование комплекта файлов для дела из esd файлов
+     * @param esds Список всех esd файлов для преобразования
+     * @param outpuPath Путь для сохранения новых файлов
+     * @param returnId returnId
+     * @param messageId messageId
+     * @throws CustomWorkExceptions
+     */
     public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws CustomWorkExceptions {
         Logger logger = LogManager.getRootLogger();
         DocumentInfo result = new DocumentInfo();

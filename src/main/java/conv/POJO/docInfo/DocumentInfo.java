@@ -195,11 +195,22 @@ public class DocumentInfo
         this.expansion = value;
     }
 
+    /**
+     * Сериализует объект в файл DocInfo.xml
+     * @param path Путь сохранения файла
+     * @throws JAXBException
+     */
     public void saveToXML(String path) throws JAXBException {
         File file = new File(Paths.get(path, "DocInfo.xml").toString());
         FileConvert.getMarshall(DocumentInfo.class, false).marshal(this, file);
     }
 
+    /**
+     * Преобразует файлы из Дела в esd для Directum
+     * @param sourceCatlog Каталог с файлами от Дела
+     * @return Список esd файлов сформированных на основе docInfo.xml
+     * @throws CustomWorkExceptions
+     */
     public List<ESD> toESD(String sourceCatlog) throws CustomWorkExceptions {
         List<ESD> esds = new ArrayList<>();
 
@@ -374,7 +385,13 @@ public class DocumentInfo
         return esds;
     }
 
-    private DigitalSignature generateDigSign(SigInfo sigInfo, Integer kindId) throws CustomWorkExceptions {
+    /**
+     * Заполняет блок с информацией о подписи (DigitalSignature)
+     * @param sigInfo Основная информация о подписи
+     * @param kindId Вид подписи
+     * @return Заполненный блок DigitalSignature
+     */
+    private DigitalSignature generateDigSign(SigInfo sigInfo, Integer kindId) {
         DigitalSignature ds = new DigitalSignature();
         ds.setCertificateIssuedTo(sigInfo.getConcatSubject());
         ds.setCryptoProvider("CryptoPro Encryption");

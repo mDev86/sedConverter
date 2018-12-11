@@ -26,14 +26,22 @@ import java.util.regex.Pattern;
 
 
 public class SigParser {
+    /** Путь до файла подписи .sig **/
     private File filePath;
-    private final DERObjectIdentifier signDateOID = new DERObjectIdentifier("1.2.840.113549.1.9.5"); //OID момента времени подписи
-    private final ASN1ObjectIdentifier signEmailOID = new ASN1ObjectIdentifier("1.2.840.113549.1.9.1"); //OID email подписанта
+    /** OID момента времени подписи **/
+    private final DERObjectIdentifier signDateOID = new DERObjectIdentifier("1.2.840.113549.1.9.5");
+    /** OID email подписанта **/
+    private final ASN1ObjectIdentifier signEmailOID = new ASN1ObjectIdentifier("1.2.840.113549.1.9.1");
 
     public SigParser(File filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Парсинг файла подписи .sig
+     * @return Основная информация о подписи
+     * @throws CustomWorkExceptions
+     */
     public SigInfo parse() throws CustomWorkExceptions {
         try{
             byte[] buffer = Files.readAllBytes(filePath.toPath());
@@ -41,6 +49,7 @@ public class SigParser {
 
             if(!isBinary()){
                 String fileText = new String(buffer);
+                /** Если файл подписи текстовый, то удаляем лишние символы, оставляем только текст в base64 **/
                 Pattern pattern = Pattern.compile("^--.*--$", Pattern.MULTILINE);
                 fileText = pattern.matcher(fileText).replaceAll("");
                 buffer = Base64.decode(fileText);
@@ -50,13 +59,14 @@ public class SigParser {
             info.setItsel(buffer);
             Store cs = signature.getCertificates(); //Список всех сертификатов
 
-            SignerInformationStore signers = signature.getSignerInfos(); //Информация о сертификатах, которыми подписан документ
+            /** Информация о сертификатах, которыми подписан документ **/
+            SignerInformationStore signers = signature.getSignerInfos();
             List c = Arrays.asList(signers.getSigners().toArray());
 
             if(!c.isEmpty()){
                 SignerInformation signer = (SignerInformation) c.get(0);
 
-                /*Получение даты, когда был подписан документ*/
+                /** Получение даты, когда был подписан документ **/
                 Attribute attribute = signer.getSignedAttributes().get(signDateOID);
                 DERObject derObjectDate = attribute.getAttrValues().getObjectAt(0).getDERObject();
                 if (derObjectDate instanceof ASN1UTCTime) {
@@ -67,11 +77,11 @@ public class SigParser {
                     }
                 }
 
-                /*Сертификат которым было подписано*/
+                /** Получаем сертификат, которым был подписан документ **/
                 Collection certCollection = cs.getMatches(signer.getSID());
                 Iterator certIt = certCollection.iterator();
                 X509CertificateHolder cert = (X509CertificateHolder) certIt.next();
-                /*Данные из сертификата*/
+                /** Достаем данные о субъекте(владельце) из сертификата **/
                 for (RDN rdn : cert.getSubject().getRDNs()) {
                     AttributeTypeAndValue first = rdn.getFirst();
                     ASN1Encodable value = first.getValue();
@@ -81,7 +91,7 @@ public class SigParser {
                     info.addSubject(value.toString());
                 }
 
-                /*Контент который был подписан*/
+                /** Если файл подписи содержит контент(файл) который был подписан **/
                 CMSProcessable sc = signature.getSignedContent();
                 if (sc != null) {
                     info.setContent((byte[])sc.getContent());
@@ -97,6 +107,10 @@ public class SigParser {
         }
     }
 
+    /**
+     * Определяет тип содержимого файла подписи
+     * @return False - текстовый; True - бинарный
+     */
     private Boolean isBinary() {
         try {
             Tika tika = new Tika();

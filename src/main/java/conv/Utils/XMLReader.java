@@ -3,7 +3,6 @@ package conv.Utils;
 import conv.Exceptions.CustomWorkExceptions;
 import conv.POJO.docInfo.DocumentInfo;
 import conv.POJO.esd.ESD;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
 import javax.xml.bind.JAXBContext;
@@ -26,6 +25,12 @@ import java.util.stream.Collectors;
 
 public class XMLReader {
 
+    /**
+     * Считывание всех esd файлов
+     * @param path Путь до рабочей папки
+     * @return Лист ESD классов
+     * @throws CustomWorkExceptions
+     */
     public static List<ESD> loadESDFiles(String path) throws CustomWorkExceptions {
         List<ESD> result = new ArrayList<>();
 
@@ -59,6 +64,12 @@ public class XMLReader {
         return result;
     }
 
+    /**
+     * Считывание файла соответствующего структуре класса DocumentInfo
+     * @param _file Путь до файла
+     * @return Экземпляр класса DocumentInfo заполненый данными из файла
+     * @throws CustomWorkExceptions
+     */
     public static DocumentInfo loadDocInfoFromXml(File _file) throws CustomWorkExceptions {
         FileInputStream file = null;
         try {

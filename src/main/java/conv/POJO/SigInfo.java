@@ -1,7 +1,6 @@
 package conv.POJO;
 
 import org.apache.logging.log4j.LogManager;
-import org.bouncycastle.util.encoders.Base64;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -26,6 +25,10 @@ public class SigInfo{
         return Subject;
     }
 
+    /**
+     * Собирает набор данных о владельце сертификата в одну строку
+     * @return Строка с информацией о владельце сертификата
+     */
     public String getConcatSubject() {
         StringBuilder builder = new StringBuilder();
         this.Subject.forEach(it -> builder.append(it+","));
@@ -41,6 +44,10 @@ public class SigInfo{
         return Signed;
     }
 
+    /**
+     * Преобразует дату подписания документа в формат XMLGregorianCalendar для записи в xml
+     * @return
+     */
     public XMLGregorianCalendar getSignedToXMLGregorianCalendar(){
         try {
             GregorianCalendar c = new GregorianCalendar();
@@ -62,7 +69,7 @@ public class SigInfo{
     }
 
     public String getBase64Content(){
-        return new String(Base64.encode(this.Content));
+        return java.util.Base64.getEncoder().encodeToString(this.Content);
     }
 
     public void setContent(byte[] content) {
@@ -85,6 +92,10 @@ public class SigInfo{
         Itsel = itsel;
     }
 
+    /**
+     * Преобразует подпись в формат base64
+     * @return
+     */
     public String getItselInBase64(){
         return java.util.Base64.getEncoder().encodeToString(Itsel);
     }

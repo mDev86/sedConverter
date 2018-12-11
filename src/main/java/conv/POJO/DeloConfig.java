@@ -5,7 +5,6 @@ import conv.POJO.docInfo.*;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -43,6 +42,10 @@ public class DeloConfig {
         this.documentAuthor = documentAuthor;
     }
 
+    /**
+     * Возвращает данные для docInfo.xml по умолчанию
+     * @return
+     */
     public static DeloConfig getDefault() {
         DeloConfig dc = new DeloConfig();
 

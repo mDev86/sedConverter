@@ -49,7 +49,7 @@ public class XMLReader {
             JAXBContext context = JAXBContext.newInstance(ESD.class);
             unmarshaller = context.createUnmarshaller();
         } catch (JAXBException e) {
-            LogManager.getRootLogger().error("Ошибка создания десерилизатора", e);
+            LogManager.getLogger("global").error("Ошибка создания десерилизатора", e);
         }
 
         for (File f: files) {

@@ -48,10 +48,9 @@ public class App
         System.setProperty("basePath", basePath);
         System.setProperty("startPath", new File(App.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent());
 
-        Logger log = LogManager.getRootLogger();
+        Logger log = LogManager.getLogger("global");
 
         log.info(String.format("Запуск утилиты. Преобразование %s.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
-
         try {
             if(Dit2Dir) {
                 DitToDir(basePath);
@@ -103,6 +102,8 @@ public class App
 
         DocumentInfo documentInfo = XMLReader.loadDocInfoFromXml(docInfo);
 
+        documentInfo.saveResolution(pathOut);
+
         for(ESD esd: documentInfo.toESD(pathIn)){
             try {
                 esd.saveToFile(pathOut);
@@ -110,6 +111,7 @@ public class App
                 throw new CustomWorkExceptions("Dit2Dir: Ошибка при сохранении esd файла", e);
             }
         }
+
     }
 
     /**

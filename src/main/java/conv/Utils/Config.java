@@ -39,7 +39,7 @@ public class Config {
         try {
             deloConfig = loadDeloConf();
         } catch (JAXBException e) {
-            LogManager.getRootLogger().error("Ошибка десерилизации файла конфигурации conf\\DeloConfig.xml", e);
+            LogManager.getLogger("global").error("Ошибка десерилизации файла конфигурации conf\\DeloConfig.xml", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class Config {
                 try {
                     uid.put(Integer.parseInt(split[0]), split[1]);
                 }catch (NumberFormatException e){
-                    LogManager.getRootLogger().warn(String.format("Считывание конфигурации: не удалось преобразовать строку \"%s\"", line));
+                    LogManager.getLogger("global").warn(String.format("Считывание конфигурации: не удалось преобразовать строку \"%s\"", line));
                 }
             }
         }

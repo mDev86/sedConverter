@@ -55,7 +55,7 @@ public class SigInfo{
             XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
             return date2;
         } catch (DatatypeConfigurationException e) {
-            LogManager.getRootLogger().warn("Экземпляр информации о подписи: Ошибка преобразования даты: Date -> XMLGregorianCalendar", e);
+            LogManager.getLogger("global").warn("Экземпляр информации о подписи: Ошибка преобразования даты: Date -> XMLGregorianCalendar", e);
             return null;
         }
     }

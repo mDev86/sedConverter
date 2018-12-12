@@ -11,12 +11,14 @@ import conv.Utils.SigParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,6 +27,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -224,22 +227,19 @@ public class DocumentInfo
             if (sender != null) {
                 Contact contact = sender.getContact();
                 if (contact != null) {
-                    Organization organization = contact.getOrganization();
+                    Organization = findOrganization(contact);
+                    /*Organization organization = contact.getOrganization();
                     if (organization != null) {
                         String orgUID = organization.getUID();
                         try {
                             Organization = Config.getInstance().getOGVuid().get(orgUID);
                         } catch (IOException e) {
-                            LogManager.getRootLogger().warn("Ошибка записи или считывания файла с uid огв", e);
+                            LogManager.getLogger("global").warn("Ошибка записи или считывания файла с uid огв", e);
                         }
                         if (Organization == null || Organization.isEmpty()) {
-                            if(organization.getFullName() != null){
-                                Organization = organization.getFullName();
-                            }else {
                                 Organization = organization.getShortName();
-                            }
                         }
-                    }
+                    }*/
                 }
             }
             /**Получение списка файлов**/
@@ -279,7 +279,7 @@ public class DocumentInfo
                                     date = registrationInfo.getDate();
                                     date = DatatypeFactory.newInstance().newXMLGregorianCalendar(registrationInfo.getDate().toGregorianCalendar());
                                 } catch (DatatypeConfigurationException e) {
-                                    LogManager.getRootLogger().warn("Проблема при преобразовании даты в формат XMLGregorianCalendar", e);
+                                    LogManager.getLogger("global").warn("Проблема при преобразовании даты в формат XMLGregorianCalendar", e);
                                     if(date.getHour() < 0) date.setHour(0);
                                     if(date.getMinute() < 0) date.setMinute(0);
                                     if(date.getSecond() < 0) date.setSecond(0);
@@ -375,7 +375,7 @@ public class DocumentInfo
                             esds.add(esd);
                         }
                     } else {
-                        LogManager.getRootLogger().warn("Проблема конвертации docInfo -> esd: Нет описания файлов, отсутствуют теги <File>");
+                        LogManager.getLogger("global").warn("Проблема конвертации docInfo -> esd: Нет описания файлов, отсутствуют теги <File>");
                     }
                 }
             } else {
@@ -426,6 +426,142 @@ public class DocumentInfo
         ds.setAttributes(attrs);
 
         return ds;
+    }
+
+    /**
+     * Генерирует файл резолюции
+     * @param pathSave Путь сохранения файла
+     */
+    public void saveResolution(String pathSave){
+        LogManager.getLogger("global").info("Начинаем формирование резолюции");
+        LogManager.getLogger("error").info("Начинаем формирование резолюции");
+        if(this.getTaskList() != null){
+            StringBuilder resolut = new StringBuilder();
+            resolut.append("=========================================\r\n\r\n");
+            for(Task task : this.getTaskList().getTask()){
+                /** Получение данных об авторе задания **/
+                if(task.getAuthor() != null){
+                    ResolutionAuthor taskAuthor = task.getAuthor();
+                    if(taskAuthor.getContact() != null){
+                        Contact authorContact = taskAuthor.getContact();
+                        resolut.append(String.format("От: %s\r\n", findOrganization(authorContact)));
+
+                        String authFio = "",
+                                authPost = "";
+                        OfficialPerson officialPerson = authorContact.getOfficialPerson();
+                        if(officialPerson != null){
+                            authFio = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst().get().getValue();
+                            authPost = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst().get().getValue();
+
+                        }
+                        resolut.append(String.format("ФИО: %s\r\n", authFio));
+                        resolut.append(String.format("Должность: %s\r\n", authPost));
+                        resolut.append(String.format("Дата: %s\r\n", taskAuthor.getSignDate().toXMLFormat()));
+                        resolut.append(String.format("Резолюция: %s\r\n", task.getText()));
+                        resolut.append("-----------------\r\n");
+                    }
+                }
+
+                /** Получение данных об исполнителях **/
+                for(Executor executor: task.getExecutor()){
+                    Contact executorContact = executor.getContact();
+                    if(executorContact != null){
+                        String organization = findOrganization(executorContact);
+                        Boolean uriit = organization.toLowerCase().contains("юнииит");
+                        resolut.append(String.format("Кому: %s\r\n", findOrganization(executorContact)));
+
+                        String depName = "";
+                        if(executorContact.getDepartment() != null && !executorContact.getDepartment().getName().isEmpty()){
+                                depName = executorContact.getDepartment().getName();
+                        }else if(uriit){
+                            depName = "Руководство";
+                        }
+                        resolut.append(String.format("Подразделение: %s\r\n", depName));
+
+
+                        String execFio = "",
+                                execPost = "";
+
+                        /** Считываем информацию о исполнитле **/
+                        OfficialPerson execPerson = executorContact.getOfficialPerson();
+                        if(execPerson != null){
+                            Optional<JAXBElement<String>> fio = execPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst();
+                            execFio = fio.isPresent() ? fio.get().getValue(): "";
+                            Optional<JAXBElement<String>> post = execPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst();
+                            execPost = post.isPresent() ? post.get().getValue(): "";
+                        }
+
+                        /** Если значения пустне и это ЮНИИИТ, то заменяем на значения по дефолту **/
+                        if(execFio.isEmpty() && uriit){
+                            try {
+                                execFio = Config.getInstance().getDeloCofig().getDocumentAuthor().getContact().getOfficialPerson().getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst().get().getValue();
+                                execFio = execFio.toLowerCase().contains("мельников") ? "Мельников Андрей Витальевич" : execFio;
+                            } catch (IOException e) {
+                                execFio = "Мельников Андрей Витальевич";
+                            }
+                        }
+
+                        if(execPost.isEmpty() && uriit){
+                            try {
+                                execPost = Config.getInstance().getDeloCofig().getDocumentAuthor().getContact().getOfficialPerson().getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst().get().getValue();
+                            } catch (IOException e) {
+                                execPost = "Директор";
+                            }
+                        }
+
+
+                        resolut.append(String.format("ФИО: %s\r\n", execFio));
+                        resolut.append(String.format("Должность: %s\r\n", execPost));
+                    }
+                    resolut.append(String.format("Ответственный: %s\r\n", executor.isResponsible()?"Да" : "Нет"));
+                    resolut.append("-----------------\r\n");
+                }
+
+                resolut.append("\r\n=========================================\r\n\r\n");
+            }
+
+            File newFile = new File(pathSave);
+            newFile.mkdirs();
+            newFile = new File(newFile, "Резолюция.txt");
+            try {
+                newFile.createNewFile();
+                FileOutputStream fileWriter = new FileOutputStream(newFile, false);
+                fileWriter.write(resolut.toString().getBytes());
+                fileWriter.close();
+                LogManager.getLogger("global").info("Резолюция успешно сформирована");
+                LogManager.getLogger("error").info("Резолюция успешно сформирована");
+            } catch (IOException e) {
+                LogManager.getLogger("global").warn(String.format("Ошибка записи информации в файл резолюции: %s", newFile.getPath()));
+                LogManager.getLogger("error").warn("Ошибка записи информации в файл резолюции", e);
+            }
+
+        }else{
+            LogManager.getLogger("global").warn("Невозможно сформировать резолюцию. Отсутствует блок <TaskList>");
+            LogManager.getLogger("error").warn("Невозможно сформировать резолюцию. Отсутствует блок <TaskList>");
+        }
+
+    }
+
+    /**
+     * Поиск или извлечение организации из экземпляра Contact
+     * @param contact Класс содержащий информацию об организации подразделении и должностном лице в организации
+     * @return Наименование организации
+     */
+    private String findOrganization(Contact contact){
+        String Organization = null;
+        Organization organization = contact.getOrganization();
+        if (organization != null) {
+            String orgUID = organization.getUID();
+            try {
+                Organization = Config.getInstance().getOGVuid().get(orgUID);
+            } catch (IOException e) {
+                LogManager.getLogger("global").warn("Ошибка записи или считывания файла с uid огв", e);
+            }
+            if (Organization == null || Organization.isEmpty()) {
+                Organization = organization.getShortName();
+            }
+        }
+        return Organization;
     }
 
 }

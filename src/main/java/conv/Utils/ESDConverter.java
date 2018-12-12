@@ -45,7 +45,7 @@ public class ESDConverter {
      * @throws CustomWorkExceptions
      */
     public static void convert(List<ESD> esds, String outpuPath, String returnId, String messageId) throws CustomWorkExceptions {
-        Logger logger = LogManager.getRootLogger();
+        Logger logger = LogManager.getLogger("global");
 
         //Корневой элемент XML
         DocumentInfo result = new DocumentInfo();

@@ -73,7 +73,7 @@ public class SigParser {
                     try {
                         info.setSigned(((ASN1UTCTime) derObjectDate).getDate());
                     } catch (ParseException e) {
-                        LogManager.getRootLogger().warn("Ошибка считывания подписи: Ошибка преобразования даты подписания документа", e);
+                        LogManager.getLogger("global").warn("Ошибка считывания подписи: Ошибка преобразования даты подписания документа", e);
                     }
                 }
 
@@ -121,7 +121,7 @@ public class SigParser {
                 return true;
             }
         } catch (IOException e) {
-            LogManager.getRootLogger().warn("Ошибка определния типа содержимого файла подписи. Пробуем преобразовать как binary", e);
+            LogManager.getLogger("global").warn("Ошибка определния типа содержимого файла подписи. Пробуем преобразовать как binary", e);
             return true;
         }
 

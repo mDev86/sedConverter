@@ -50,7 +50,7 @@ public class App
 
         Logger log = LogManager.getLogger("global");
 
-        log.info(String.format("Запуск утилиты. Преобразование %s.", Dit2Dir?"Дело->Directum":"Directum->Дело"));
+        log.info(String.format("Запуск утилиты. Преобразование %s. (Набор файлов: %s)", Dit2Dir?"Дело->Directum":"Directum->Дело", basePath));
         try {
             if(Dit2Dir) {
                 DitToDir(basePath);

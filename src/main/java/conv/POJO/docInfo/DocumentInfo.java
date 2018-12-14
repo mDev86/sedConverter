@@ -452,15 +452,15 @@ public class DocumentInfo
                         if(officialPerson != null){
                             authFio = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst().get().getValue();
                             authPost = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst().get().getValue();
-
                         }
                         resolut.append(String.format("ФИО: %s\r\n", authFio));
                         resolut.append(String.format("Должность: %s\r\n", authPost));
                         resolut.append(String.format("Дата: %s\r\n", taskAuthor.getSignDate().toXMLFormat()));
-                        resolut.append(String.format("Резолюция: %s\r\n", task.getText()));
-                        resolut.append("-----------------\r\n");
                     }
                 }
+
+                resolut.append(String.format("Резолюция: %s\r\n", task.getText()));
+                resolut.append("-----------------\r\n");
 
                 /** Получение данных об исполнителях **/
                 for(Executor executor: task.getExecutor()){
@@ -515,6 +515,49 @@ public class DocumentInfo
                     }
                     resolut.append(String.format("Ответственный: %s\r\n", executor.isResponsible()?"Да" : "Нет"));
                     resolut.append("-----------------\r\n");
+                }
+
+                /** Информация о контроле задачи **/
+                if(task.getControl() != null){
+                    ControlState _state = task.getControl().getState();
+                    String state = "";
+                    switch (_state != null ? _state : ControlState.UNDER_CONTROL){
+                        case NO_CONTROL:
+                            state = "Не на контроле";
+                            break;
+                        case ENDED_CONTROL:
+                            state = "Снято с контроля";
+                            break;
+                        default: break;
+                    }
+
+                    resolut.append(String.format("КОНТРОЛЬ: %s\r\n", state));
+                    Contact contact = task.getControl().getContact();
+                    if(contact != null){
+                        resolut.append(String.format("Кто: %s\r\n", findOrganization(contact)));
+                        if(contact.getDepartment() != null){
+                            resolut.append(String.format("Подразделение: %s\r\n", contact.getDepartment().getName()));
+                        }
+
+                        OfficialPerson officialPerson = contact.getOfficialPerson();
+                        if(officialPerson != null){
+                            Optional<JAXBElement<String>> fio = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst();
+                            resolut.append(fio.isPresent() ? String.format("ФИО: %s\r\n",  fio.get().getValue()):"");
+                            Optional<JAXBElement<String>> post = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst();
+                            resolut.append(post.isPresent() ? String.format("Должность: %s\r\n", post.get().getValue()):"");
+                        }
+                    }
+
+                    XMLGregorianCalendar deadline = task.getControl().getDeadline();
+                    if(deadline != null){
+                        resolut.append(String.format("Плановая дата выполнения: %s\r\n", deadline.toXMLFormat()));
+                    }
+                }
+
+                /** Примечание **/
+                if(task.getNote() != null){
+                    resolut.append("-----------------\r\n");
+                    resolut.append(String.format("Примечание: %s\r\n", task.getNote() ));
                 }
 
                 resolut.append("\r\n=========================================\r\n\r\n");

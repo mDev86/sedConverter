@@ -103,6 +103,7 @@ public class App
         DocumentInfo documentInfo = XMLReader.loadDocInfoFromXml(docInfo);
 
         documentInfo.saveResolution(pathOut);
+        documentInfo.generateFileInfo(pathOut);
 
         for(ESD esd: documentInfo.toESD(pathIn)){
             try {

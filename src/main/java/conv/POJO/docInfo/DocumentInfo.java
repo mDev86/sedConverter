@@ -258,7 +258,6 @@ public class DocumentInfo
             List<Document> documents = docList.getDocument();
             if (documents != null) {
                 for (Document doc : documents) {
-
                     List<DeloFile> files = doc.getFile();
                     if (files != null) {
                         for (DeloFile file : files) {
@@ -384,6 +383,62 @@ public class DocumentInfo
         }
         return esds;
     }
+
+    /**
+     * Создание файла с информацией о документ. Блок <Annotation> и <Writer>.<Contact>
+     * @param pathSave Путь сохранения файла
+     */
+    public void generateFileInfo(String pathSave){
+        LogManager.getLogger("global").info("Начинаем формирование файла с информацией о документе");
+        LogManager.getLogger("error").info("Начинаем формирование файла с информацией о документе");
+        StringBuilder builder = new StringBuilder();
+        DocumentList docList = this.getDocumentList();
+        if (docList != null) {
+            List<Document> documents = docList.getDocument();
+            if (documents != null) {
+                builder.append("=========================================\n\r\n\r");
+                for (Document doc : documents) {
+                    for(DocumentAuthor auth : doc.getAuthor()){
+                        Contact contact = auth.getContact();
+                        if(contact != null){
+                            String org = findOrganization(contact);
+                            builder.append(String.format("От: %s\r\n", org));
+                            OfficialPerson officialPerson = contact.getOfficialPerson();
+                            if(officialPerson != null){
+                                String authPost, authFio;
+                                Optional<JAXBElement<String>> fio = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst();
+                                authFio = fio.isPresent() ? fio.get().getValue(): "";
+                                Optional<JAXBElement<String>> post = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst();
+                                authPost = post.isPresent() ? post.get().getValue(): "";
+
+                                builder.append(String.format("ФИО: %s\r\n", authFio));
+                                builder.append(String.format("Должность: %s\r\n", authPost));
+                            }
+                            builder.append("-----------------\n\r\n\r");
+                        }
+                    }
+                    builder.append(String.format("Текст: %s\r\n", doc.getAnnotation()));
+                    builder.append("=========================================\n\r\n\r");
+                }
+            }
+        }
+
+        File newFile = new File(pathSave);
+        newFile.mkdirs();
+        newFile = new File(newFile, "Информация о файле.txt");
+        try {
+            newFile.createNewFile();
+            FileOutputStream fileWriter = new FileOutputStream(newFile, false);
+            fileWriter.write(builder.toString().getBytes());
+            fileWriter.close();
+            LogManager.getLogger("global").info("Файл с информацией о документе успешно сформирован");
+            LogManager.getLogger("error").info("Файл с информацией о документе успешно сформирован");
+        } catch (IOException e) {
+            LogManager.getLogger("global").warn(String.format("Ошибка формирования файла с инфорацией о документе: %s", newFile.getPath()));
+            LogManager.getLogger("error").warn("Ошибка формирования файла с инфорацией о документе", e);
+        }
+    }
+
 
     /**
      * Заполняет блок с информацией о подписи (DigitalSignature)

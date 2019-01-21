@@ -285,7 +285,13 @@ public class ESD
     public void saveToFile(String path) throws JAXBException {
         File file = new File(path);
         file.mkdirs();
-        file = new File(path,this.getHeader().name+".esd");
+
+        /**
+         * Из-за ограничения windows на длину пути 260 символов, обрезаем название файла
+         */
+        String extension = ".esd",
+                shotFileName = this.getHeader().name.length() > 259-(path.length()+1 + extension.length()) ? this.getHeader().name.substring(0, 259-(path.length()+1 + extension.length())) : this.getHeader().name;
+        file = new File(path,shotFileName + extension);
         FileConvert.getMarshall(ESD.class, true).marshal(this, file);
     }
 }

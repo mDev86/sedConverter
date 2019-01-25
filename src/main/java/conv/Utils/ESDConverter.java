@@ -15,7 +15,10 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Класс-helper для конвертирования списка esd файлов в DocInfo
@@ -28,12 +31,16 @@ public class ESDConverter {
      * @return Информация о главном esd файле
      */
     private static ESD getMain(List<ESD> esds) {
+        ESD main = null;
+        long mainCnt = esds.stream().filter(x -> !x.getHeader().getNumber().isEmpty()).count();
         for (ESD esd: esds) {
-            if (!esd.getHeader().getNumber().isEmpty())
-                return esd;
+            if ((!esd.getHeader().getNumber().isEmpty() && mainCnt == 1) ||
+                    (mainCnt != 1 && esd.getHeader().getName().toLowerCase().contains("исх"))) {
+                main = esd;
+            }
         }
 
-        return null;
+        return main;
     }
 
     /**

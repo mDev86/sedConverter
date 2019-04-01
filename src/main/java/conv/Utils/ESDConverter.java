@@ -57,7 +57,7 @@ public class ESDConverter {
         //Корневой элемент XML
         DocumentInfo result = new DocumentInfo();
 
-        //Считывание и десерелизация файла с информацией о отправителе, получателе и авторе (элемнты Sender, Recipient, Author)
+        //Считывание и десерелизация файла с информацией об отправителе, получателе и авторе (элемнты Sender, Recipient, Author)
         DeloConfig deloConfig = null;
         try {
             deloConfig = Config.getInstance().getDeloCofig();

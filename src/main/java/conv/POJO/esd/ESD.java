@@ -255,7 +255,7 @@ public class ESD
         fileName += FilenameUtils.getExtension(fileName).equalsIgnoreCase(this.getHeader().getExtension())? "":"." + this.getHeader().getExtension().toLowerCase();
 
         //Удалям запрещенные в имени файла символы
-        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "");
+        fileName = fileName.replaceAll("[\\\\/:*?\"<>|]", "").replaceAll("[–\\|—]", "-");
 
         return fileName;
     }

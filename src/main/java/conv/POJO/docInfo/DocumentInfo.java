@@ -322,6 +322,10 @@ public class DocumentInfo
                             String ext = file.getExtension().replace(".","");
                             String descr = file.getDescription();
 
+                            //Нормализуем описание, поскольку оно есть название сохраняемого файла. Т.Е. удаляем запрещенные символы в именах файлов и удаляем повторяющиеся пробелы
+                            descr = descr.replaceAll("[\\/?%*:|\"<>;\\\\]", "")
+                                        .replaceAll("\\s{2,}"," ");
+
                             int fileResourceID = file.getResourceID();
                             ResourceInfo fileInfo = listResource.stream()
                                     .filter(it -> Integer.parseInt(it.getUID()) == fileResourceID)
@@ -402,7 +406,7 @@ public class DocumentInfo
                         Contact contact = auth.getContact();
                         if(contact != null){
                             String org = findOrganization(contact);
-                            builder.append(String.format("От: %s\r\n", org));
+                            builder.append(String.format("От: %s\r\n", org.replaceAll("\\s{2,}"," ")));
                             OfficialPerson officialPerson = contact.getOfficialPerson();
                             if(officialPerson != null){
                                 String authPost, authFio;
@@ -412,12 +416,12 @@ public class DocumentInfo
                                 authPost = post.isPresent() ? post.get().getValue(): "";
 
                                 builder.append(String.format("ФИО: %s\r\n", authFio));
-                                builder.append(String.format("Должность: %s\r\n", authPost));
+                                builder.append(String.format("Должность: %s\r\n", authPost.replaceAll("\\s{2,}"," ")));
                             }
                             builder.append("-----------------\n\r\n\r");
                         }
                     }
-                    builder.append(String.format("Текст: %s\r\n", doc.getAnnotation()));
+                    builder.append(String.format("Текст: %s\r\n", doc.getAnnotation().replaceAll("\\s{2,}"," ")));
                     builder.append("=========================================\n\r\n\r");
                 }
             }
@@ -499,7 +503,7 @@ public class DocumentInfo
                     ResolutionAuthor taskAuthor = task.getAuthor();
                     if(taskAuthor.getContact() != null){
                         Contact authorContact = taskAuthor.getContact();
-                        resolut.append(String.format("От: %s\r\n", findOrganization(authorContact)));
+                        resolut.append(String.format("От: %s\r\n", findOrganization(authorContact).replaceAll("\\s{2,}"," ")));
 
                         String authFio = "",
                                 authPost = "";
@@ -509,12 +513,12 @@ public class DocumentInfo
                             authPost = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst().get().getValue();
                         }
                         resolut.append(String.format("ФИО: %s\r\n", authFio));
-                        resolut.append(String.format("Должность: %s\r\n", authPost));
+                        resolut.append(String.format("Должность: %s\r\n", authPost.replaceAll("\\s{2,}"," ")));
                         resolut.append(String.format("Дата: %s\r\n", taskAuthor.getSignDate().toXMLFormat()));
                     }
                 }
 
-                resolut.append(String.format("Резолюция: %s\r\n", task.getText()));
+                resolut.append(String.format("Резолюция: %s\r\n", task.getText().replaceAll("\\s{2,}"," ")));
                 resolut.append("-----------------\r\n");
 
                 /** Получение данных об исполнителях **/
@@ -523,7 +527,7 @@ public class DocumentInfo
                     if(executorContact != null){
                         String organization = findOrganization(executorContact);
                         Boolean uriit = organization.toLowerCase().contains("юнииит");
-                        resolut.append(String.format("Кому: %s\r\n", findOrganization(executorContact)));
+                        resolut.append(String.format("Кому: %s\r\n", findOrganization(executorContact).replaceAll("\\s{2,}"," ")));
 
                         String depName = "";
                         if(executorContact.getDepartment() != null && !executorContact.getDepartment().getName().isEmpty()){
@@ -566,7 +570,7 @@ public class DocumentInfo
 
 
                         resolut.append(String.format("ФИО: %s\r\n", execFio));
-                        resolut.append(String.format("Должность: %s\r\n", execPost));
+                        resolut.append(String.format("Должность: %s\r\n", execPost.replaceAll("\\s{2,}"," ")));
                     }
                     resolut.append(String.format("Ответственный: %s\r\n", executor.isResponsible()?"Да" : "Нет"));
                     resolut.append("-----------------\r\n");
@@ -591,7 +595,7 @@ public class DocumentInfo
                     if(contact != null){
                         resolut.append(String.format("Кто: %s\r\n", findOrganization(contact)));
                         if(contact.getDepartment() != null){
-                            resolut.append(String.format("Подразделение: %s\r\n", contact.getDepartment().getName()));
+                            resolut.append(String.format("Подразделение: %s\r\n", contact.getDepartment().getName().replaceAll("\\s{2,}"," ")));
                         }
 
                         OfficialPerson officialPerson = contact.getOfficialPerson();
@@ -599,7 +603,7 @@ public class DocumentInfo
                             Optional<JAXBElement<String>> fio = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("fio")).findFirst();
                             resolut.append(fio.isPresent() ? String.format("ФИО: %s\r\n",  fio.get().getValue()):"");
                             Optional<JAXBElement<String>> post = officialPerson.getRest().stream().filter(it -> it.getName().getLocalPart().equalsIgnoreCase("post")).findFirst();
-                            resolut.append(post.isPresent() ? String.format("Должность: %s\r\n", post.get().getValue()):"");
+                            resolut.append(post.isPresent() ? String.format("Должность: %s\r\n", post.get().getValue().replaceAll("\\s{2,}"," ")):"");
                         }
                     }
 

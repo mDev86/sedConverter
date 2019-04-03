@@ -183,7 +183,11 @@ public class ESDConverter {
 
                 signNumber++;
             }
-            doc.getAuthor().add(deloConfig.getDocumentAuthor());
+
+            //Добавляем только одного автора
+            if(doc.getAuthor().isEmpty()) {
+                doc.getAuthor().add(deloConfig.getDocumentAuthor());
+            }
 
             //Извлекаем файл и подписи, если они есть
             esd.extractFile(outpuPath);

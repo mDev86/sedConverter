@@ -291,6 +291,7 @@ public class ESD
          */
         String extension = ".esd",
                 shotFileName = this.getHeader().name.length() > 259-(path.length()+1 + extension.length()) ? this.getHeader().name.substring(0, 259-(path.length()+1 + extension.length())) : this.getHeader().name;
+
         file = new File(path,shotFileName + extension);
         FileConvert.getMarshall(ESD.class, true).marshal(this, file);
     }

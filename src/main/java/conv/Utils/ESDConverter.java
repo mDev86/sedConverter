@@ -137,6 +137,9 @@ public class ESDConverter {
         RegistrationInfo regInfo = new RegistrationInfo();
         regInfo.setNumber(main.getHeader().getNumber());
         XMLGregorianCalendar regInfoDate = main.getHeader().getDate();
+        if(regInfoDate == null || regInfo.getNumber().isEmpty()){
+            throw new CustomWorkExceptions("Не указана информация о регистрации документа (отсутствует дата или номер  документа)");
+        }
         regInfoDate.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         regInfo.setDate(regInfoDate);
 
@@ -187,6 +190,7 @@ public class ESDConverter {
             //Добавляем только одного автора
             if(doc.getAuthor().isEmpty()) {
                 doc.getAuthor().add(deloConfig.getDocumentAuthor());
+                doc.getAuthor().forEach(aut -> aut.setRegistrationInfo(regInfo));
             }
 
             //Извлекаем файл и подписи, если они есть

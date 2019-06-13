@@ -421,7 +421,9 @@ public class DocumentInfo
                             builder.append("-----------------\n\r\n\r");
                         }
                     }
-                    builder.append(String.format("Текст: %s\r\n", doc.getAnnotation().replaceAll("\\s{2,}"," ")));
+                    if(doc.getAnnotation() != null) {
+                        builder.append(String.format("Текст: %s\r\n", doc.getAnnotation().replaceAll("\\s{2,}", " ")));
+                    }
                     builder.append("=========================================\n\r\n\r");
                 }
             }

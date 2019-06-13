@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -64,9 +66,11 @@ public class App
             onlyLog.error(customWorkExceptions, customWorkExceptions.fillInStackTrace());
             System.exit(1);
         }catch (RuntimeException err){
-            log.error(err, err.fillInStackTrace());
+            StringWriter sw = new StringWriter();
+            err.printStackTrace(new PrintWriter(sw));
+            log.error(sw.toString());
             Logger onlyLog = LogManager.getLogger("error");
-            onlyLog.error(err, err.fillInStackTrace());
+            onlyLog.error(sw.toString());
             System.exit(1);
         }
 

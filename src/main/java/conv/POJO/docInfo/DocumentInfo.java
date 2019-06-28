@@ -516,11 +516,13 @@ public class DocumentInfo
                         }
                         resolut.append(String.format("ФИО: %s\r\n", authFio));
                         resolut.append(String.format("Должность: %s\r\n", authPost.replaceAll("\\s{2,}"," ")));
-                        resolut.append(String.format("Дата: %s\r\n", taskAuthor.getSignDate().toXMLFormat()));
+                        resolut.append(String.format("Дата: %s\r\n", taskAuthor.getSignDate() != null ? taskAuthor.getSignDate().toXMLFormat():""));
                     }
                 }
 
-                resolut.append(String.format("Резолюция: %s\r\n", task.getText().replaceAll("\\s{2,}"," ")));
+                resolut.append(String.format("Резолюция: %s\r\n", task.getText() != null ?
+                                                                    task.getText().replaceAll("\\s{2,}"," ")
+                                                                    :""));
                 resolut.append("-----------------\r\n");
 
                 /** Получение данных об исполнителях **/
